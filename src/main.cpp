@@ -1,5 +1,5 @@
 #include<iostream>
-#include"elem/board.hpp"
+#include"board.hpp"
 
 using namespace std;
 
