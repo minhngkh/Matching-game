@@ -41,7 +41,7 @@ bin/
 !.vscode/c_cpp_properties.json
 
 #ignore lib
-include/
+include/*
 
 #ignore test
 test/
