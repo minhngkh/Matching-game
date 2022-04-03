@@ -26,7 +26,6 @@ bin/
 *.la
 *.a
 *.lib
-!lib/*
 
 # Executables
 *.exe
@@ -40,3 +39,8 @@ bin/
 !.vscode/launch.json
 !.vscode/*.code-snippets
 !.vscode/c_cpp_properties.json
+
+#ignore lib
+include/cpp-terminal/
+include/ftxui/
+include/rang.hpp
