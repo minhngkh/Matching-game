@@ -41,6 +41,7 @@ bin/
 !.vscode/c_cpp_properties.json
 
 #ignore lib
-include/cpp-terminal/
-include/ftxui/
-include/rang.hpp
+include/
+
+#ignore test
+test/
