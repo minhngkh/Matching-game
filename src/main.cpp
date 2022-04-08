@@ -1,122 +1,78 @@
-#include <ncurses.h>
-#include <iostream>
+#include "global.hpp"
 #include "board.hpp"
+#include "screen.hpp"
+#include "path.hpp"
 
 using namespace std;
 
-int startX = 0;
-int startY = 0;
-
-#define SIZE 6
-
-struct Pos {
-    int x,y;
-};
-
-struct WinCard {
-    bool selected = false;
-    bool highlight = false;
-    WINDOW *win;
-};
-
-void GenerateCard(WinCard card, char content) {
-    wbkgd(card.win, COLOR_PAIR(0));
-    box(card.win, 0, 0);
-    mvwaddch(card.win, 1, 2, content);
-
-    wrefresh(card.win);
-}
-
-void TryToggleCard(WinCard *card) {
-    if (card->highlight && !(card->selected)) {
-        wbkgd(card->win, COLOR_PAIR(0));
-        card->highlight = false;
-    } else {
-        wbkgd(card->win, COLOR_PAIR(1));
-        card->highlight = true;
-    }
-
-    wrefresh(card->win);
-}
-
 int main() {
+
+    // Setup terminal
     initscr();
-    cbreak();
-    noecho();
-    start_color();
-    keypad(stdscr, TRUE);
+
+    raw();                 // using raw buffer
+    noecho();              // to not print buffer on screen
+    start_color();         // enable color support
+    keypad(stdscr, TRUE);  // enable support for arrow keys
+    curs_set(0);           // disable typing indicator
+
     init_pair(1, COLOR_CYAN, COLOR_WHITE);
+
     refresh();
 
-    char **board = GenerateBoard(SIZE);
-    WinCard cards[SIZE][SIZE];
+    int height, width;
 
-    startY = (LINES - (SIZE * 5 + (SIZE - 1))) / 2;
-    for (int i = 0; i < SIZE; i++) {
+    // input board's size
+    WINDOW *inWin;
+    PrintPrompt(inWin, "Size:", 2);
 
-        startX = (COLS - (SIZE * 5 + (SIZE - 1))) / 2;
-        for (int j = 0; j < SIZE; j++) {
-            cards[i][j].win = newwin(3, 5, startY, startX);
+    echo();
+    cbreak();
+    wrefresh(inWin);
 
-            GenerateCard(cards[i][j], board[i][j]);
+    mvwscanw(inWin, 1, (COLS - 3) / 2, "%i %i", &height, &width);
 
-            startX += 6;
-        }
+    noecho();
+    raw();
+    
+    RemoveWin(inWin);
 
-        startY += 4;
-    }
+    // Generate board
+    Card **board;
+    GenerateBoard(board, height, width);
 
-    getch();
+    // Play
+    bool gameOver = false;
 
-    int ch;
-    Pos curPos = {0, 0};
-    TryToggleCard(&cards[0][0]);
-    int selectedCards = 0;
+    while (!gameOver) {
+        DisplayBoard(board, height, width);
 
-    while (selectedCards < 2) {
-        ch = getch();
-        switch (ch) {
-            case KEY_LEFT:
-                if (curPos.x == 0) break;
+        // Prompt before start
+        PrintPrompt(inWin, "Press any key to continue", 1, LINES - 1);
 
-                TryToggleCard(&cards[curPos.y][curPos.x]);
-                --curPos.x;
-                TryToggleCard(&cards[curPos.y][curPos.x]);
+        getch();
 
-                break;
-            case KEY_RIGHT:
-                if (curPos.x == SIZE - 1) break;
+        RemoveWin(inWin);
 
-                TryToggleCard(&cards[curPos.y][curPos.x]);
-                ++curPos.x;
-                TryToggleCard(&cards[curPos.y][curPos.x]);
+        // Play
+        int pairsRemoved = 0;
+        int totalPairs = height * width / 2;
 
-                break;
-            case KEY_UP:
-                if (curPos.y == 0) break;
+        while (pairsRemoved < totalPairs) {
+            Pos *selectedPos = SelectPair(board, height, width);
+            Pos *path;
 
-                TryToggleCard(&cards[curPos.y][curPos.x]);
-                --curPos.y;
-                TryToggleCard(&cards[curPos.y][curPos.x]);
-
-                break;
-            case KEY_DOWN:
-                if (curPos.y == SIZE - 1) break;
-
-                TryToggleCard(&cards[curPos.y][curPos.x]);
-                ++curPos.y;
-                TryToggleCard(&cards[curPos.y][curPos.x]);
-
-                break;
-            case '\n':
-                cards[curPos.y][curPos.x].selected = true;
-                ++selectedCards;
-
-                break;
-            default: 
-                break;
+            if (FindPath(board, height, width, selectedPos, path)) {
+                DrawPath(path);
+                //napms(1000); // Delay 1000ms
+                RemovePair(board, selectedPos);
+            } else {
+                TogglePair(board, selectedPos);
+            }
         }
     }
+
+    PrintPrompt(inWin, "GAME OVER");
 
     getch();
     endwin();

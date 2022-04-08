@@ -9,11 +9,10 @@
 				"-fdiagnostics-color=always",
 				"-g",
 				"-Wall",
-				"-Iinclude",
-				"${relativeFileDirname}/*.cpp",
-				"lib/*.a",
+				"src/*.cpp",
+				"-lncurses",
 				"-o",
-				"bin/debug/${fileBasenameNoExtension}"
+				"bin/debug/debug"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
