@@ -29,7 +29,7 @@ void RemoveWin(WINDOW *win) {
     delwin(win);
 }
 
-void DisplayBackground(WINDOW *win) {
+void DisplayBackground(WINDOW *&win) {
     ifstream ifs("resources/poke.art");
 
     if (!ifs) return;
@@ -39,8 +39,9 @@ void DisplayBackground(WINDOW *win) {
     height = width = 0;
 
     // get the size of the ascii art
+    // name conflict so i have to specify std here
     while(getline(ifs, line)) {
-        if (line.length() > width) width = line.length();
+        if (int(line.length()) > width) width = line.length();
         ++height;
     }
 
@@ -49,6 +50,7 @@ void DisplayBackground(WINDOW *win) {
     ifs.seekg(0);
 
     win = newwin(height, width, (LINES - height) / 2, (COLS - width) / 2);
+    wattron(win, A_DIM);
 
     // print the art out
     int i = 0;

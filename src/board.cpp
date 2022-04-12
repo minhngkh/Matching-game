@@ -109,6 +109,7 @@ void RefreshBoard(Card **board, int boardHeight, int boardWidth) {
     for (int i = 0; i < boardHeight; i++) {
         for (int j = 0; j < boardWidth; j++) {
             if (board[i][j].status == "removed") continue;
+            touchwin(board[i][j].win);
             wrefresh(board[i][j].win);
         }
     }
@@ -139,7 +140,7 @@ bool UnselectCard(Card &card) {
 }
 
 
-Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
+string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
     int ch;
 
     // highlight the first card of the board
@@ -158,31 +159,52 @@ Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
         }
     }
     int selectedCards = 0;
-    Pos *selectedPos = new Pos[2];
-    int initPos;
 
     while (selectedCards < 2) {
         ch = getch();
+        Pos initPos = currPos;
+        int limit;
+        bool toToggle = false;
+
         switch (ch) {
             case 'a':
             case 'A':
             case KEY_LEFT:
                 if (currPos.x == 0) break;
 
-                // find the closest available card that is not yet removed
-                initPos = currPos.x;
-                while (currPos.x != 0) {
-                    --currPos.x;
-                    if (board[currPos.y][currPos.x].status != "removed") break;
+                // find the end of the offset loop
+                limit = max(boardHeight - 1 - currPos.y, currPos.y) * 2 + 1;
+
+                // start from 0 to avoid looping 0 2 times
+                for (int i = 1; i < limit + 1; i++) {
+                    // offset to find card in all rows
+                    int offset = pow(-1, i) * (i / 2);
+                    int tempPos = initPos.y + offset;
+
+                    if (tempPos < 0 || boardHeight <= tempPos) continue;
+
+                    currPos.y = tempPos;
+
+                    // loop until an available card is found in row
+                    while (currPos.x != 0) {
+                        --currPos.x;
+                        if (board[currPos.y][currPos.x].status != "removed") break;
+                    }
+
+                    if (board[currPos.y][currPos.x].status == "removed" && currPos.x == 0) {
+                        // card not found in row so reset
+                        currPos.x = initPos.x;
+                    } else {
+                        toToggle = true;
+                        break;
+                    }
                 }
 
-                if (board[currPos.y][currPos.x].status == "removed" && currPos.x == 0) {
-                    // reset back to the initial pos
-                    currPos.x = initPos;
-                    break;
+                if (!toToggle) {
+                    currPos = initPos;
                 }
 
-                ToggleCard(board[currPos.y][initPos]);
+                ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);
 
                 break;
@@ -192,17 +214,34 @@ Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
             case KEY_RIGHT:
                 if (currPos.x == boardWidth - 1) break;
 
-                initPos = currPos.x;
-                while (currPos.x != boardWidth - 1) {
-                    ++currPos.x;
-                    if (board[currPos.y][currPos.x].status != "removed") break;
+                limit = max(boardHeight - 1 - currPos.y, currPos.y) * 2 + 1;
+
+                for (int i = 1; i < limit + 1; i++) {
+                    int offset = pow(-1, i) * (i / 2);
+                    int tempPos = initPos.y + offset;
+
+                    if (tempPos < 0 || boardHeight <= tempPos) continue;
+
+                    currPos.y = tempPos;
+
+                    while (currPos.x != boardWidth - 1) {
+                        ++currPos.x;
+                        if (board[currPos.y][currPos.x].status != "removed") break;
+                    }
+
+                    if (board[currPos.y][currPos.x].status == "removed" && currPos.x == boardWidth - 1) {
+                        currPos.x = initPos.x;
+                    } else {
+                        toToggle = true;
+                        break;
+                    }
                 }
 
-                if (board[currPos.y][currPos.x].status == "removed" && currPos.x == boardWidth - 1) {
-                    currPos.x = initPos;
-                    break;
+                if (!toToggle) {
+                    currPos = initPos;
                 }
-                ToggleCard(board[currPos.y][initPos]);
+
+                ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);
 
                 break;
@@ -212,18 +251,34 @@ Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
             case KEY_UP:
                 if (currPos.y == 0) break;
 
-                initPos = currPos.y;
-                while (currPos.y != 0) {
-                    --currPos.y;
-                    if (board[currPos.y][currPos.x].status != "removed") break;
+                limit = max(boardWidth - 1 - currPos.x, currPos.x) * 2 + 1;
+
+                for (int i = 1; i < limit + 1; i++) {
+                    int offset = pow(-1, i) * (i / 2);
+                    int tempPos = initPos.x + offset;
+
+                    if (tempPos < 0 || boardWidth <= tempPos) continue;
+
+                    currPos.x = tempPos;
+
+                    while (currPos.y != 0) {
+                        --currPos.y;
+                        if (board[currPos.y][currPos.x].status != "removed") break;
+                    }
+
+                    if (board[currPos.y][currPos.x].status == "removed" && currPos.y == 0) {
+                        currPos.y = initPos.y;
+                    } else {
+                        toToggle = true;
+                        break;
+                    }
                 }
 
-                if (board[currPos.y][currPos.x].status == "removed" && currPos.y == 0) {
-                    currPos.y = initPos;
-                    break;
+                if (!toToggle) {
+                    currPos = initPos;
                 }
 
-                ToggleCard(board[initPos][currPos.x]);
+                ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);
 
                 break;
@@ -232,19 +287,35 @@ Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
             case 'S':
             case KEY_DOWN:
                 if (currPos.y == boardHeight - 1) break;
-            
-                initPos = currPos.y;
-                while (currPos.y != boardHeight - 1) {
-                    ++currPos.y;
-                    if (board[currPos.y][currPos.x].status != "removed") break;
-                }
-                
-                if (board[currPos.y][currPos.x].status == "removed" && currPos.y == boardHeight - 1) {
-                    currPos.y = initPos;
-                    break;
+
+                limit = max(boardWidth - 1 - currPos.x, currPos.x) * 2 + 1;
+
+                for (int i = 1; i < limit + 1; i++) {
+                    int offset = pow(-1, i) * (i / 2);
+                    int tempPos = initPos.x + offset;
+
+                    if (tempPos < 0 || boardWidth <= tempPos) continue;
+
+                    currPos.x = tempPos;
+
+                    while (currPos.y != boardHeight - 1) {
+                        ++currPos.y;
+                        if (board[currPos.y][currPos.x].status != "removed") break;
+                    }
+
+                    if (board[currPos.y][currPos.x].status == "removed" && currPos.y == boardHeight - 1) {
+                        currPos.y = initPos.y;
+                    } else {
+                        toToggle = true;
+                        break;
+                    }
                 }
 
-                ToggleCard(board[initPos][currPos.x]);
+                if (!toToggle) {
+                    currPos = initPos;
+                }
+
+                ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);
 
                 break;
@@ -259,12 +330,18 @@ Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
 
                 break;
 
+            case 3: //^C
+                return "force out";
+            
+            case '0':
+                return "surrender";
+
             default:
                 break;
         }
     }
 
-    return selectedPos;
+    return "none";
 }
 
 bool TogglePair(Card **board, Pos *pair) {

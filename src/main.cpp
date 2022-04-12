@@ -15,7 +15,6 @@ int main() {
     start_color();         // enable color support
     keypad(stdscr, TRUE);  // enable support for arrow keys
     curs_set(0);           // disable typing indicator
-
     init_pair(1, COLOR_CYAN, COLOR_WHITE);
 
     refresh();
@@ -61,7 +60,17 @@ int main() {
         int totalPairs = height * width / 2;
 
         while (pairsRemoved < totalPairs) {
-            Pos *selectedPos = SelectPair(board, height, width);
+            touchwin(background);
+            wrefresh(background);
+            RefreshBoard(board, height, width);
+            Pos *selectedPos = new Pos[2];
+
+            string gameState = GetInput(board, height, width, selectedPos);
+            if (gameState == "force out") return 0;
+            if (gameState == "surrender") {
+                gameOver = true;
+                break;
+            }
             Pos *path;
 
             if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width)) {
@@ -69,12 +78,16 @@ int main() {
                 DrawPath(path);
                 //napms(1000); // Delay 1000ms
                 RemovePair(board, selectedPos);
+                ++pairsRemoved;
             } else {
                 TogglePair(board, selectedPos);
             }
         }
+        break;
     }
 
+    clear();
+    
     PrintPrompt(inWin, "GAME OVER");
 
     getch();

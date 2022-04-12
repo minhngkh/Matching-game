@@ -12,6 +12,8 @@
         "new": "cpp",
         "numeric": "cpp",
         "system_error": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "string": "cpp",
+        "istream": "cpp"
     }
 }

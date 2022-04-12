@@ -4,6 +4,7 @@
 #include "screen.hpp"
 #include <ncurses.h>
 #include <random>
+#include <string>
 
 #define MAX_TOTAL_CARDS 100
 #define MIN_TOTAL_CARDS 2
@@ -22,6 +23,10 @@ bool ToggleCard(Card &card);
 
 bool TogglePair(Card **board, Pos *pair);
 
-Pos *SelectPair(Card **board, int boardHeight, int boardWidth);
+std::string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos);
 
 void RemovePair(Card **board, Pos* pair);
+
+void SlideBoard(int **board, int boardHeight, int boardWidth, Pos removedPos);
+
+void SlideBoard(int **board, int boardHeight, int boardWidth, Pos *removedPos);

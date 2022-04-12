@@ -10,5 +10,5 @@ void PrintPrompt(WINDOW *&win, std::string prompt, int lines = 1, int y = LINES 
 void EmptyWin(WINDOW *win);
 void RemoveWin(WINDOW *win);
 
-void DisplayBackground(WINDOW *win);
+void DisplayBackground(WINDOW *&win);
 
