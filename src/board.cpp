@@ -129,6 +129,14 @@ bool ToggleCard(Card &card) {
     return true;
 }
 
+bool UnselectCard(Card &card) {
+    wbkgd(card.win, COLOR_PAIR(0));
+    card.status = "none";
+    wrefresh(card.win);
+    return true;
+}
+
+
 Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
     int ch;
 
@@ -259,7 +267,7 @@ Pos *SelectPair(Card **board, int boardHeight, int boardWidth) {
 
 bool TogglePair(Card **board, Pos *pair) {
     for (int i = 0; i < 2; i++) {
-        if (!ToggleCard(board[pair[i].y][pair[i].x])) return false;
+        if (!UnselectCard(board[pair[i].y][pair[i].x])) return false;
     }
 
     return true;

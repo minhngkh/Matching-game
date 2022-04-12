@@ -62,7 +62,8 @@ int main() {
             Pos *selectedPos = SelectPair(board, height, width);
             Pos *path;
 
-            if (FindPath(board, height, width, selectedPos, path)) {
+            if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width)) {
+            // if (FindPath(board, height, width, selectedPos, path)) {
                 DrawPath(path);
                 //napms(1000); // Delay 1000ms
                 RemovePair(board, selectedPos);
