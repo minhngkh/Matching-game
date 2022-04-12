@@ -75,7 +75,9 @@ void DisplayCard(Card card) {
     box(card.win, 0, 0);
     mvwaddch(card.win, CARD_HEIGHT / 2, CARD_WIDTH / 2, card.val);
 
+    touchwin(card.win);
     wrefresh(card.win);
+    touchwin(card.win);
 }
 
 void DisplayBoard(Card **board, int boardHeight, int boardWidth) {

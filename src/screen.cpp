@@ -28,3 +28,34 @@ void RemoveWin(WINDOW *win) {
     wrefresh(win);
     delwin(win);
 }
+
+void DisplayBackground(WINDOW *win) {
+    ifstream ifs("resources/poke.art");
+
+    if (!ifs) return;
+
+    string line;
+    int height, width;
+    height = width = 0;
+
+    // get the size of the ascii art
+    while(getline(ifs, line)) {
+        if (line.length() > width) width = line.length();
+        ++height;
+    }
+
+    // reset to the beginning
+    ifs.clear();
+    ifs.seekg(0);
+
+    win = newwin(height, width, (LINES - height) / 2, (COLS - width) / 2);
+
+    // print the art out
+    int i = 0;
+    while(getline(ifs, line)) {
+        mvwaddstr(win, i, 0, line.c_str());
+        ++i;
+    }
+
+    wrefresh(win);
+}

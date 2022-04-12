@@ -45,6 +45,8 @@ int main() {
     bool gameOver = false;
 
     while (!gameOver) {
+        WINDOW *background;
+        DisplayBackground(background);
         DisplayBoard(board, height, width);
 
         // Prompt before start
