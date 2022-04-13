@@ -2,7 +2,6 @@
 
 #include "global.hpp"
 #include "screen.hpp"
-#include <ncurses.h>
 #include <random>
 #include <string>
 

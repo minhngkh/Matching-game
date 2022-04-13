@@ -320,7 +320,9 @@ string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos)
 
                 break;
 
+            case '\r':
             case '\n':
+            case KEY_ENTER:
                 if (board[currPos.y][currPos.x].status == "selected") break;
 
                 board[currPos.y][currPos.x].status = "selected";

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "global.hpp"
-#include "ncurses.h"
+#include "curses.h"
 
 #include "test.hpp"
 
