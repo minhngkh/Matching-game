@@ -752,6 +752,8 @@ bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path,
 }
 
 void DrawCorner(Pos &point, int lastDr, int currDr) {
+    attron(COLOR_PAIR(2));
+
     if ((lastDr == DR_UP && currDr == DR_RIGHT) || (lastDr == DR_LEFT && currDr == DR_DOWN)) {
         mvaddch(point.y, point.x, ACS_ULCORNER);
         mvaddch(point.y, point.x + 1, ACS_HLINE);
@@ -773,10 +775,14 @@ void DrawCorner(Pos &point, int lastDr, int currDr) {
     // left + up & down + right;
     mvaddch(point.y, point.x, ACS_LLCORNER);
     mvaddch(point.y, point.x + 1, ACS_HLINE);
-    mvaddch(point.y - 1, point.x, ACS_VLINE);    
+    mvaddch(point.y - 1, point.x, ACS_VLINE);
+
+    attroff(COLOR_PAIR(2));
 }
 
 void DrawLine(Pos point1, Pos point2, int &direction) {
+    attron(COLOR_PAIR(2));
+
     int startPos;
 
     if (point1.x == point2.x) {
@@ -801,6 +807,8 @@ void DrawLine(Pos point1, Pos point2, int &direction) {
         direction = DR_LEFT;
     }
     mvhline(point1.y, startPos, 0, abs(point2.x - point1.x) + 1 - (CARD_WIDTH / 2) * 2);
+
+    attroff(COLOR_PAIR(2));
 }
 
 void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen) {
@@ -850,6 +858,7 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         DrawLine(lastPoint, currPoint, currDr);
 
         if (i > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
+        // crucial to refresh, without it, random bugs may appear
         refresh();
     }
 }

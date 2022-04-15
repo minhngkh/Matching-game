@@ -1,5 +1,7 @@
 #include "test.hpp"
 
+using namespace std;
+
 bool test() {
     WINDOW *win;
 
@@ -20,4 +22,28 @@ bool test() {
                 break;
         }
     }
+}
+
+void GenerateTest(Card **&board, int &height, int &width) {
+    height = 4;
+    width = 4;
+
+    board = new Card*[width];
+    for (int i = 0; i < height; i++) {
+        board[i] = new Card [width];
+    }
+
+    ifstream ifs("src/test.txt");
+
+    string line;
+    int i = 0;
+    while (getline(ifs, line)) {
+        for (int j = 0; j < width; j++) {
+            if (line[j] == '-') board[i][j].status = "removed";
+            else board[i][j].val = line[j];
+        }
+        ++i;
+    }
+
+    ifs.close();
 }

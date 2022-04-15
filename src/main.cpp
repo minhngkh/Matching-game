@@ -2,6 +2,7 @@
 #include "board.hpp"
 #include "screen.hpp"
 #include "path.hpp"
+#include "test.hpp"
 
 using namespace std;
 
@@ -16,6 +17,7 @@ int main() {
     keypad(stdscr, TRUE);  // enable support for arrow keys
     curs_set(0);           // disable typing indicator
     init_pair(1, COLOR_CYAN, COLOR_WHITE);
+    init_pair(2, COLOR_CYAN, COLOR_BLACK);
 
     refresh();
 
@@ -39,6 +41,7 @@ int main() {
     // Generate board
     Card **board;
     GenerateBoard(board, height, width);
+    //GenerateTest(board, height, width);
 
     // Play
     bool gameOver = false;
