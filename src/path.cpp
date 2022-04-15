@@ -816,7 +816,7 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         if (i != 0) lastPoint = currPoint;
 
         if (path[i].y == -1) {
-            currPoint.y = - 1 - CARD_SPACE - CARD_HEIGHT / 2;
+            currPoint.y = - 1 - CARD_SPACE / 2 - CARD_HEIGHT / 2;
             ++y;
         } else if (path[i].y == boardHeight) {
             currPoint.y = CARD_HEIGHT + CARD_HEIGHT / 2;
@@ -850,6 +850,6 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         DrawLine(lastPoint, currPoint, currDr);
 
         if (i > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
-        
+        refresh();
     }
 }
