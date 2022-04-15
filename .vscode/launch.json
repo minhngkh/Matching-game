@@ -8,13 +8,13 @@
             "name" : "Debug Project",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/debug/debug",
+            "program": "${workspaceFolder}/test.exe",
             "cwd": "${workspaceFolder}",
-            "externalConsole": false,
+            "externalConsole": true,
             "MIMode": "gdb",
             "environment": [],
             "stopAtEntry": false,
-            "miDebuggerPath": "C:/msys64/mingw64/bin/g++.exe",
+            "miDebuggerPath": "C:/msys64/mingw64/bin/gdb.exe",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing",

@@ -100,8 +100,8 @@ void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
             DisplayCard(board[i][j]);
             boardPos.x += CARD_WIDTH + 1;
         }
-
-        boardPos.y += CARD_HEIGHT + 1;
+        // Because char's height is about double the width, so we dont need spacing here
+        boardPos.y += CARD_HEIGHT;
     }
 }
 

@@ -2,26 +2,14 @@
 
 #include "global.hpp"
 #include "curses.h"
+#include "string"
 
-#include "test.hpp"
+bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path, int &pathLen);
+bool Hint(Card **board, int height, int width, Pos* &path, int &pathLen);
 
-bool FindPath(Card **board, int boardHeight, int boardWidth, Pos *init, Pos *path);
-void DrawPath(Pos *path);
+#define DR_UP 1
+#define DR_DOWN -1
+#define DR_LEFT 2
+#define DR_RIGHT -2
 
-bool CheckLineX(int x1, int x2, Card **board, int y);
-bool CheckLineY(int y1, int y2, Card **board, int x);
-
-bool CheckI(Pos p1, Pos p2, Card **board);
-
-bool CheckZVertical(Pos pMinY, Pos pMaxY, Card **board, Pos* &path);
-bool CheckZHorizontal(Pos pMinX, Pos pMaxX, Card **board, Pos* &path);
-bool CheckZ(Pos p1, Pos p2, Card **board, Pos* &path);
-
-bool CheckU_Up(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path);
-bool CheckU_Down(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path);
-bool CheckU_Left(Pos p1, Pos p2, Card **board, int width, Pos* &path);
-bool CheckU_Right(Pos p1, Pos p2, Card **board, Pos* &path);
-bool CheckU(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path);
-
-bool Hint(Card **board, int height, int width, Pos* &path);
-bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path);
+void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen);

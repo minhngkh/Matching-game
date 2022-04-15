@@ -60,6 +60,8 @@ int main() {
         int totalPairs = height * width / 2;
 
         while (pairsRemoved < totalPairs) {
+            clear();
+            refresh();
             touchwin(background);
             wrefresh(background);
             RefreshBoard(board, height, width);
@@ -72,10 +74,11 @@ int main() {
                 break;
             }
             Pos *path;
+            int pathLen;
 
-            if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width)) {
+            if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width, path, pathLen)) {
             // if (FindPath(board, height, width, selectedPos, path)) {
-                DrawPath(path);
+                DrawPath(board, height, width, path, pathLen);
                 //napms(1000); // Delay 1000ms
                 RemovePair(board, selectedPos);
                 ++pairsRemoved;
