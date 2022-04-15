@@ -357,7 +357,7 @@ bool TogglePair(Card **board, Pos *pair) {
 void RemovePair(Card **board, Pos *pair) {
     for (int i = 0; i < 2; i++) {
         Card &currentCard = board[pair[i].y][pair[i].x];
-        RemoveWin(currentCard.win);
+        EmptyWin(currentCard.win);
         currentCard.status = "removed";
     }
 }

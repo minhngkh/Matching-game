@@ -579,23 +579,6 @@ bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path,
         return false;
 }
 
-void DrawArrow(Pos point, int direction) {
-    if (direction == DR_UP) {
-        mvaddch(point.y + 1 + CARD_HEIGHT / 2, point.x, ACS_UARROW);
-        return ;
-    }
-    if (direction == DR_DOWN) {
-        mvaddch(point.y - 1 - CARD_HEIGHT / 2, point.x, ACS_DARROW);
-        return;
-    }
-    if (direction == DR_RIGHT) {
-        mvaddch(point.y, point.x - 1 - CARD_WIDTH / 2, ACS_RARROW);
-        return ;
-    }
-    // left
-    mvaddch(point.y, point.x + 1 + CARD_WIDTH / 2, ACS_LARROW);
-}
-
 void DrawCorner(Pos &point, int lastDr, int currDr) {
     if ((lastDr == DR_UP && currDr == DR_RIGHT) || (lastDr == DR_LEFT && currDr == DR_DOWN)) {
         mvaddch(point.y, point.x, ACS_ULCORNER);
@@ -622,34 +605,38 @@ void DrawCorner(Pos &point, int lastDr, int currDr) {
 }
 
 void DrawLine(Pos point1, Pos point2, int &direction) {
-    Pos *startPoint;
+    int startPos;
 
     if (point1.x == point2.x) {
         if (point1.y < point2.y) {
-            startPoint = &point1;
+            startPos = point1.y + CARD_HEIGHT / 2;
             direction = DR_DOWN;
         } else {
-            startPoint = &point2;
+            startPos = point2.y + CARD_HEIGHT / 2;
             direction = DR_UP;
         }
-        mvhline(startPoint->y, startPoint->x, 0, abs(point2.y - point1.y) - 1 - CARD_HEIGHT / 2 * 2);
+        mvvline(startPos, point1.x, 0, abs(point2.y - point1.y) + 1 - (CARD_HEIGHT / 2) * 2);
+
+        return ;
     }
     
     // equal y
     if (point1.x < point2.x) {
-        startPoint = &point1;
+        startPos = point1.x + CARD_WIDTH / 2;
         direction = DR_RIGHT;
     } else {
-        startPoint = &point2;
+        startPos = point2.x + CARD_WIDTH / 2;
         direction = DR_LEFT;
     }
-    mvvline(startPoint->y, startPoint->x, 0, abs(point2.x - point1.x) - 1 - CARD_WIDTH / 2 * 2);
+    mvhline(point1.y, startPos, 0, abs(point2.x - point1.x) + 1 - (CARD_WIDTH / 2) * 2);
 }
 
 void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen) {
     Pos *points = new Pos[pathLen];
     Pos lastPoint, currPoint;
     int lastDr, currDr;
+    int offsetSadCase = 0;
+
     for (int i = 0; i < pathLen; i++) {
         int y = path[i].y;
         int x = path[i].x;
@@ -681,15 +668,16 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
     
         if (i == 0) continue;
 
+        // value return from path.cpp made by Hoang give dupliacate values in L case
+        if (lastPoint.x == currPoint.x && lastPoint.y == currPoint.y) {
+            ++offsetSadCase;
+            continue;
+        }
+
         lastDr = currDr;
         DrawLine(lastPoint, currPoint, currDr);
 
-        if (i == 1) DrawArrow(lastPoint, lastDr);
-        else {
-            DrawCorner(currPoint, lastDr, currDr);
-        }
-
-        if (i == pathLen - 1) DrawArrow(lastPoint, currDr);
+        if (i > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
         
     }
 }
