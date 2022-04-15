@@ -561,6 +561,7 @@ bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path,
     else if (CheckI(p1, p2, board))
     {
         path = new Pos [2];
+        pathLen = 2;
         path[0] = p1;
         path[1] = p2;
 
@@ -631,7 +632,7 @@ void DrawLine(Pos point1, Pos point2, int &direction) {
             startPoint = &point2;
             direction = DR_UP;
         }
-        mvaddch(startPoint->y, startPoint->x, abs(point2.y - point1.y) - 1 - CARD_HEIGHT / 2 * 2);
+        mvhline(startPoint->y, startPoint->x, 0, abs(point2.y - point1.y) - 1 - CARD_HEIGHT / 2 * 2);
     }
     
     // equal y
@@ -642,7 +643,7 @@ void DrawLine(Pos point1, Pos point2, int &direction) {
         startPoint = &point2;
         direction = DR_LEFT;
     }
-    mvaddch(startPoint->y, startPoint->x, abs(point2.x - point1.x) - 1 - CARD_WIDTH / 2 * 2);
+    mvvline(startPoint->y, startPoint->x, 0, abs(point2.x - point1.x) - 1 - CARD_WIDTH / 2 * 2);
 }
 
 void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen) {
@@ -656,7 +657,7 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         if (i != 0) lastPoint = currPoint;
 
         if (path[i].y == -1) {
-            currPoint.y = - 1 - CARD_HEIGHT / 2;
+            currPoint.y = - 1 - CARD_SPACE - CARD_HEIGHT / 2;
             ++y;
         } else if (path[i].y == boardHeight) {
             currPoint.y = CARD_HEIGHT + CARD_HEIGHT / 2;
@@ -666,7 +667,7 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         }
 
         if (path[i].x == -1) {
-            currPoint.x = - 1 - CARD_WIDTH / 2;
+            currPoint.x = - 1 - CARD_SPACE - CARD_WIDTH / 2;
             ++x;
         } else if (path[i].x == boardWidth) {
             currPoint.x = CARD_WIDTH + CARD_WIDTH / 2;
@@ -684,10 +685,11 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         DrawLine(lastPoint, currPoint, currDr);
 
         if (i == 1) DrawArrow(lastPoint, lastDr);
-
-        if (i == pathLen - 1) DrawArrow(lastPoint, currDr);
         else {
             DrawCorner(currPoint, lastDr, currDr);
         }
+
+        if (i == pathLen - 1) DrawArrow(lastPoint, currDr);
+        
     }
 }
