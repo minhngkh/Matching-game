@@ -69,7 +69,7 @@ bool CheckI(Pos p1, Pos p2, Card **board) {
 //Z=============================================
 
 bool CheckZVertical(Pos pMinY, Pos pMaxY, Card **board, Pos* &path, int &pathLen) {
-    for (int y = pMinY.y + 1; y < pMaxY.y; y++) {
+    for (int y = pMinY.y + 1; y <= pMaxY.y; y++) {
         if (CheckLineY(pMinY.y, y, board, pMinY.x) &&
             CheckLineX(pMinY.x, pMaxY.x, board, y) &&
             CheckLineY(y, pMaxY.y, board, pMaxY.x)) {
@@ -98,7 +98,7 @@ bool CheckZVertical(Pos pMinY, Pos pMaxY, Card **board, Pos* &path, int &pathLen
 }
 
 bool CheckZHorizontal(Pos pMinX, Pos pMaxX, Card **board, Pos* &path, int &pathLen) {
-    for (int x = pMinX.x + 1; x < pMaxX.x; x++) {
+    for (int x = pMinX.x + 1; x <= pMaxX.x; x++) {
         if (CheckLineX(pMinX.x, x, board, pMinX.y) &&
             CheckLineY(pMinX.y, pMaxX.y, board, x) &&
             CheckLineX(x, pMaxX.x, board, pMaxX.y)) {
@@ -157,6 +157,45 @@ bool CheckZ(Pos p1, Pos p2, Card **board, Pos* &path, int &pathLen) {
 
 // Check chữ U bình thường
 bool CheckU_Up(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path, int &pathLen) {
+    if(pMinX.y == height - 1) {
+        if(CheckLineY(pMaxX.y, pMinX.y, board, pMaxX.x)) {
+            path = new Pos[4];
+            pathLen = 4;
+
+            path[0] = pMinX;
+
+            path[1].y = height;
+            path[1].x = pMinX.x;
+
+            path[2].y = height;
+            path[3].x = pMaxX.x;
+
+            path[3] = pMaxX;
+
+            return true;
+        }        
+    }
+
+    else if(pMaxX.y == height - 1){
+        if(CheckLineY(pMinX.y, pMaxX.y, board, pMinX.x)) {
+            path = new Pos[4];
+            pathLen = 4;
+
+            path[0] = pMinX;
+
+            path[1].y = height;
+            path[1].x = pMinX.x;
+
+            path[2].y = height;
+            path[3].x = pMaxX.x;
+
+            path[3] = pMaxX;
+             
+             return true;
+        }
+    }
+
+    else
     for (int y = pMinX.y + 1; y < height; y++) {
         if (CheckLineY(pMinX.y, y, board, pMinX.x) &&
             CheckLineX(pMinX.x, pMaxX.x, board, y) &&
@@ -216,6 +255,53 @@ bool CheckU_Up(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path, int &
 
 // Check chữ U lật xuống (giống kí hiệu "và" trong toán tập hợp)
 bool CheckU_Down(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path, int &pathLen) {
+    if(pMinX.y == 0) {
+        if(CheckLineY(pMaxX.y, pMinX.y, board, pMaxX.x)) {
+                path = new Pos[4];
+                pathLen = 4;
+
+                //Đầu mút
+                path[0] = pMinX;
+
+                //Góc chữ U  I
+                path[1].y = -1;
+                path[1].x = pMinX.x;
+
+                //Góc chữ U  II
+                path[2].y = -1;
+                path[2].x = pMaxX.x;
+
+                //Đầu mút
+                path[3] = pMaxX; 
+                
+                return true;
+        }
+    }
+
+    else if(pMaxX.y == 0) {
+        if(CheckLineY(pMinX.y, pMaxX.y, board, pMinX.x)) {
+                path = new Pos[4];
+                pathLen = 4;
+
+                //Đầu mút
+                path[0] = pMinX;
+
+                //Góc chữ U  I
+                path[1].y = -1;
+                path[1].x = pMinX.x;
+
+                //Góc chữ U  II
+                path[2].y = -1;
+                path[2].x = pMaxX.x;
+
+                //Đầu mút
+                path[3] = pMaxX; 
+
+                return true;
+        }        
+    }
+
+    else
     for (int y = pMinX.y - 1; y >= 0; y--) {
         if (CheckLineY(pMinX.y, y, board, pMinX.x) &&
             CheckLineX(pMinX.x, pMaxX.x, board, y) &&
@@ -275,13 +361,55 @@ bool CheckU_Down(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path, int
 }
 
 // Check chữ U lật 90 độ sang trái
-bool CheckU_Left(Pos p1, Pos p2, Card **board, int width, Pos* &path, int &pathLen) {
-    Pos pMinY = p1, pMaxY = p2;
-    if (p1.y > p2.y) {
-        pMinY = p1;
-        pMaxY = p2;
+bool CheckU_Left(Pos pMinY, Pos pMaxY, Card **board, int width, Pos* &path, int &pathLen) {
+    if(pMinY.y == width - 1) {
+        if(CheckLineX(pMaxY.x, pMinY.x, board, pMaxY.y)) {
+
+            path = new Pos[4];
+            pathLen = 4;
+
+            //Đầu mút
+            path[0] = pMinY;
+
+            //Góc chữ U I
+            path[1].y = pMinY.y;
+            path[1].x = width;
+
+            //Góc chữ U II
+            path[2].y = pMaxY.y;
+            path[2].x = width;
+
+            //Đầu mút
+            path[3] = pMaxY;
+
+            return true;
+        }
     }
 
+    else if(pMaxY.y == width - 1) {
+        if(CheckLineX(pMinY.x, pMaxY.x, board, pMinY.y)) {
+            path = new Pos[4];
+            pathLen = 4;
+
+            //Đầu mút
+            path[0] = pMinY;
+
+            //Góc chữ U I
+            path[1].y = pMinY.y;
+            path[1].x = width;
+
+            //Góc chữ U II
+            path[2].y = pMaxY.y;
+            path[2].x = width;
+
+            //Đầu mút
+            path[3] = pMaxY;
+
+            return true;
+        }
+    }
+
+    else
     for (int x = pMinY.x + 1; x < width; x++) {
         if (CheckLineX(pMinY.x, x, board, pMinY.y) &&
             CheckLineY(pMinY.y, pMaxY.y, board, x) &&
@@ -340,13 +468,57 @@ bool CheckU_Left(Pos p1, Pos p2, Card **board, int width, Pos* &path, int &pathL
 }
 
 // Check chữ U lật 90 độ sang phải
-bool CheckU_Right(Pos p1, Pos p2, Card **board, Pos* &path, int &pathLen) {
-    Pos pMinY = p1, pMaxY = p2;
-    if (p1.y > p2.y) {
-        pMinY = p1;
-        pMaxY = p2;
+bool CheckU_Right(Pos pMinY, Pos pMaxY, Card **board, Pos* &path, int &pathLen) {
+    if(pMinY.y == 0) {
+        if(CheckLineX(pMaxY.x, pMinY.x, board, pMaxY.y)) {
+            //Tạo mảng động chứa 4 điểm của chữ U
+            path = new Pos[4];
+            pathLen = 4;
+                
+            //Đầu mút
+            path[0] = pMinY;
+
+            //Góc U thứ nhất
+            path[1].y = pMinY.y;
+            path[1].x = -1;
+
+            //Góc U thứ hai
+            path[2].y = pMaxY.y;
+            path[2].x = -1; 
+
+            //Đầu mút
+            path[3] = pMaxY;
+
+            return true;
+
+        }
     }
 
+    else if(pMaxY.y == 0) {
+        if(CheckLineX(pMinY.x, pMaxY.x, board, pMinY.y)) {
+                //Tạo mảng động chứa 4 điểm của chữ U
+                path = new Pos[4];
+                pathLen = 4;
+                
+                //Đầu mút
+                path[0] = pMinY;
+
+                //Góc U thứ nhất
+                path[1].y = pMinY.y;
+                path[1].x = -1;
+
+                //Góc U thứ hai
+                path[2].y = pMaxY.y;
+                path[2].x = -1; 
+
+                //Đầu mút
+                path[3] = pMaxY;
+
+                return true;
+        }
+    }
+
+    else
     for (int x = pMinY.x - 1; x >= 0; x--) {
         if (CheckLineX(pMinY.x, x, board, pMinY.y) &&
             CheckLineY(pMinY.y, pMaxY.y, board, x) &&
