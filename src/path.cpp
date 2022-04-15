@@ -227,11 +227,11 @@ bool CheckU_Down(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path, int
                 //Đầu mút
                 path[0] = pMinX;
 
-                //Góc chữ U nằm ngoài bảng I
+                //Góc chữ U  I
                 path[1].y = y;
                 path[1].x = pMinX.x;
 
-                //Góc chữ U nằm ngoài bảng II
+                //Góc chữ U  II
                 path[2].y = y;
                 path[2].x = pMaxX.x;
 
@@ -406,55 +406,9 @@ bool CheckU_Right(Pos p1, Pos p2, Card **board, Pos* &path, int &pathLen) {
 
 // Hai hàm check chữ U
 bool CheckU(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path, int &pathLen) {
-    // Nếu hai điểm cùng năm trên viền ngoài chiều rộng
+    // Nếu hai điểm cùng năm trên viền ngoài chiều dài
     if ((p1.y == height - 1 || p1.y == 0) && (p1.y == p2.y)) {
         if(p1.y == height - 1) {
-            path = new Pos[4];
-            pathLen = 4;
-
-            //Đầu mút
-            path[0] = p1;
-
-            //Góc chữ U bên ngoài bảng I
-            path[1].y = -1;
-            path[1].x = p1.x;
-
-            //Góc chữ U bên ngoài bảng II
-            path[2].y = -1;
-            path[2].x = p2.x;
-
-            //Đầu mút
-            path[3] = p2;
-
-            return true;
-        }
-
-        else if(p1.y == 0) {
-            path = new Pos[4];
-            pathLen = 4;
-
-            //Đầu mút
-            path[0] = p1;
-
-            //Góc chữ U bên ngoài thứ I
-            path[1].y = width;
-            path[1].x = p1.x;
-
-            //Góc chữ U bên ngoài thứ II
-            path[2].y = width;
-            path[2].x = p2.x;
-
-            //Đầu mút
-            path[3] = p2;
-
-            return true;
-        }
-    }
-
-    // Nếu hai điểm cùng nằm trên viền ngoài chiều dài
-    else if ((p1.x == width - 1 || p1.x == 0) && (p1.x == p2.x)) {
-
-        if(p1.x == width - 1) {
             path = new Pos[4];
             pathLen = 4;
 
@@ -489,6 +443,52 @@ bool CheckU(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path, int
             //Góc chữ U bên ngoài thứ II
             path[2].y = -1;
             path[2].x = p2.x;
+
+            //Đầu mút
+            path[3] = p2;
+
+            return true;
+        }
+    }
+
+    // Nếu hai điểm cùng nằm trên viền ngoài chiều rộng
+    else if ((p1.x == width - 1 || p1.x == 0) && (p1.x == p2.x)) {
+
+        if(p1.x == width - 1) {
+            path = new Pos[4];
+            pathLen = 4;
+
+            //Đầu mút
+            path[0] = p1;
+
+            //Góc chữ U bên ngoài bảng I
+            path[1].y = p1.y;
+            path[1].x = width;
+
+            //Góc chữ U bên ngoài bảng II
+            path[2].y = p2.y;
+            path[2].x = width;
+
+            //Đầu mút
+            path[3] = p2;
+
+            return true;
+        }
+
+        else if(p1.x == 0) {
+            path = new Pos[4];
+            pathLen = 4;
+
+            //Đầu mút
+            path[0] = p1;
+
+            //Góc chữ U bên ngoài thứ I
+            path[1].y = p1.y;
+            path[1].x = -1;
+
+            //Góc chữ U bên ngoài thứ II
+            path[2].y = p2.y;
+            path[2].x = -1;
 
             //Đầu mút
             path[3] = p2;
