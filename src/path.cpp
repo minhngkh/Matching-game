@@ -655,20 +655,29 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         
         if (i != 0) lastPoint = currPoint;
 
-        if (path[i].y == -1) 
-            currPoint.y = getbegy(board[y + 1][x].win) - 1 - CARD_HEIGHT / 2;
-        else if (path[i].y == boardHeight) 
-            currPoint.y = getbegy(board[y - 1][x].win) + CARD_HEIGHT + CARD_HEIGHT / 2;
-        else 
-            currPoint.y = getbegy(board[y][x].win) + CARD_HEIGHT / 2;
+        if (path[i].y == -1) {
+            currPoint.y = - 1 - CARD_HEIGHT / 2;
+            ++y;
+        } else if (path[i].y == boardHeight) {
+            currPoint.y = CARD_HEIGHT + CARD_HEIGHT / 2;
+            --y;
+        } else {
+            currPoint.y = CARD_HEIGHT / 2;
+        }
 
-        if (path[i].x == -1) 
-            currPoint.x = getbegx(board[y][x + 1].win) - 1 - CARD_WIDTH / 2;
-        else if (path[i].x == boardWidth)
-            currPoint.x = getbegx(board[y][x - 1].win) + CARD_WIDTH + CARD_WIDTH / 2;
-        else 
-            currPoint.x = getbegx(board[y][x].win) + CARD_WIDTH / 2;
+        if (path[i].x == -1) {
+            currPoint.x = - 1 - CARD_WIDTH / 2;
+            ++x;
+        } else if (path[i].x == boardWidth) {
+            currPoint.x = CARD_WIDTH + CARD_WIDTH / 2;
+            --x;
+        } else {
+            currPoint.x = CARD_WIDTH / 2;
+        }
 
+        currPoint.y += getbegy(board[y][x].win);
+        currPoint.x += getbegx(board[y][x].win);
+    
         if (i == 0) continue;
 
         lastDr = currDr;
