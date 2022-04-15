@@ -2,6 +2,70 @@
 
 using namespace std;
 
+void InteractMenu(Box *menuWins, int options, int hightlight) {
+    for (int i = 0; i < options; i++) {
+        if (hightlight == i) {
+            wbkgd(menuWins[i].content, COLOR_PAIR(1));
+        } else {
+            wbkgd(menuWins[i].content, COLOR_PAIR(0));
+        }
+        wrefresh(menuWins[i].border);
+        wrefresh(menuWins[i].content);
+    }
+}
+
+int ChooseMenu(string *menu, int options) {
+    int highlight = 0;
+    int choice = 0;
+    int ch;
+
+    int menuWidth = 0;
+    for (int i = 0; i < options; i++) {
+        if (menu[i].length() > menuWidth) menuWidth = menu[i].length();
+    }
+
+    menuWidth += MENU_PADDING;
+    Box *menuWins = new Box[options];
+    for (int i = 0; i < options; i++) {
+        menuWins[i].border = newwin(3, menuWidth + 2, (LINES - options * 3) / 2 + i * 3, (COLS - menuWidth - 2) / 2 );
+        menuWins[i].content = derwin(menuWins[i].border, 1, menuWidth, 1, 1);
+        box(menuWins[i].border, 0, 0);
+        mvwaddstr(menuWins[i].content, 0, (menuWidth - menu[i].length()) / 2, menu[i].c_str());
+        wrefresh(menuWins[i].border);
+    }
+    InteractMenu(menuWins, options, highlight);
+    
+    while(true) {
+        ch = getch();
+        switch(ch) {
+            case 'w':
+            case 'W':
+            case KEY_UP:
+                if(highlight > 0) --highlight;
+                break;
+
+            case 's':
+            case 'S':
+            case KEY_DOWN:
+                if(highlight < options - 1) ++highlight;
+                break;
+
+            case '\r':
+            case '\n':
+            case KEY_ENTER:
+                choice = highlight;
+                return choice;
+                
+            default:
+                break;
+        }
+
+        InteractMenu(menuWins, options, highlight);
+    }
+
+    return -1;
+}
+
 void PrintInMiddle(WINDOW *win, string str, int y) {
     mvwaddstr(win, y, (getmaxx(win) - str.length()) / 2, str.c_str());
 }

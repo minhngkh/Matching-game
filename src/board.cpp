@@ -83,8 +83,8 @@ void DisplayCard(Card card) {
 void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
     // int boardHeight = sizeof(board) / sizeof(*board);
     // int boardWidth = sizeof(*board) / sizeof(**board);
-    int winHeight = boardHeight * CARD_HEIGHT + (boardHeight - 1);
-    int winWidth = boardWidth * CARD_WIDTH + (boardWidth - 1);
+    int winHeight = boardHeight * CARD_HEIGHT + (boardHeight - 1) * CARD_SPACE / 2;
+    int winWidth = boardWidth * CARD_WIDTH + (boardWidth - 1) * CARD_SPACE;
     int initY = (LINES - winHeight) / 2;
     int initX = (COLS - winWidth) / 2;
 

@@ -7,6 +7,11 @@
 #define CARD_HEIGHT 3
 #define CARD_SPACE 1
 
+
+struct Box {
+    WINDOW *border;
+    WINDOW *content;
+};
 struct Pos {
     int y, x;
 };

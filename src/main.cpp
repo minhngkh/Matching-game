@@ -4,6 +4,15 @@
 #include "path.hpp"
 #include "test.hpp"
 
+#define MAIN_MENU_NUM 3
+std::string mainMenu[MAIN_MENU_NUM] = {"PLAY", "LEADERBOARD" , "EXIT"};
+
+#define PLAY_MENU_NUM 2
+std::string playMenu[PLAY_MENU_NUM] = {"NORMAL MODE", "DIFFICULT MODE"};
+
+#define SIZE_MENU_NUM 3
+std::string sizeMenu[SIZE_MENU_NUM] = {"2 X 4", "5 X 8", "10 X 12"};
+
 using namespace std;
 
 int main() {
@@ -20,6 +29,8 @@ int main() {
     init_pair(2, COLOR_CYAN, COLOR_BLACK);
 
     refresh();
+
+    //ChooseMenu(mainMenu, MAIN_MENU_NUM);
 
     int height, width;
 
@@ -94,6 +105,7 @@ int main() {
     }
 
     clear();
+    refresh();
     
     PrintPrompt(inWin, "GAME OVER");
 
