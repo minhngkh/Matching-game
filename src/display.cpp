@@ -194,6 +194,7 @@ void DisplayEndScreen(int mode) {
     WINDOW *prompt;
     if (mode == SURRENDER) {
         DisplayArt(prompt, LOSE_PROMPT);
+        return;
     } 
     // win
     DisplayArt(prompt, WIN_PROMPT);
@@ -202,33 +203,23 @@ void DisplayEndScreen(int mode) {
 
     const int SPACE_INPUT = 10;
     string out = "Enter your name:";
-    string in;
+    char in[20];
     
     int startX = (COLS - out.length() - SPACE_INPUT) / 2;
     PrintPrompt(inputWin, out, 1, LINES - 2, startX);
 
     echo();
-    nocbreak();
+    cbreak();
     wrefresh(inputWin);
     curs_set(1);
 
-    move(LINES - 2, startX + out.length() + 1);
-
-    int ch = getch();
-    while ( ch != '\n' )
-    {
-        in.push_back( ch );
-        ch = getch();
-    }
+    mvwgetstr(inputWin, 0, startX + out.length() + 1, in);
     
-
     noecho();
     raw();
     curs_set(0);
 
     RemoveWin(inputWin);
 
-    mvaddstr(0,0,in.c_str());
-
-    getch();
+    
 }

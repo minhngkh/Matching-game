@@ -758,18 +758,24 @@ void DrawCorner(Pos &point, int lastDr, int currDr) {
         mvaddch(point.y, point.x, ACS_ULCORNER);
         mvaddch(point.y, point.x + 1, ACS_HLINE);
         mvaddch(point.y + 1, point.x, ACS_VLINE);
+
+        attroff(COLOR_PAIR(2));
         return ;
     }
     if ((lastDr == DR_RIGHT && currDr == DR_DOWN) || (lastDr == DR_UP && currDr == DR_LEFT)) {
         mvaddch(point.y, point.x, ACS_URCORNER);
         mvaddch(point.y, point.x - 1, ACS_HLINE);
         mvaddch(point.y + 1, point.x, ACS_VLINE);
+
+        attroff(COLOR_PAIR(2));
         return ;
     }
     if ((lastDr == DR_DOWN && currDr == DR_LEFT) || (lastDr == DR_RIGHT && currDr == DR_UP)) {
         mvaddch(point.y, point.x, ACS_LRCORNER);
         mvaddch(point.y, point.x - 1, ACS_HLINE);
-        mvaddch(point.y - 1, point.x, ACS_VLINE);    
+        mvaddch(point.y - 1, point.x, ACS_VLINE);  
+
+        attroff(COLOR_PAIR(2));
         return ;
     }
     // left + up & down + right;
@@ -795,6 +801,7 @@ void DrawLine(Pos point1, Pos point2, int &direction) {
         }
         mvvline(startPos, point1.x, 0, abs(point2.y - point1.y) + 1 - (CARD_HEIGHT / 2) * 2);
 
+        attroff(COLOR_PAIR(2));
         return ;
     }
     
