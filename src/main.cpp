@@ -1,7 +1,18 @@
 #include "global.hpp"
 #include "board.hpp"
-#include "screen.hpp"
+#include "display.hpp"
 #include "path.hpp"
+#include "stat.hpp"
+#include "test.hpp"
+
+#define MAIN_MENU_NUM 3
+std::string mainMenu[MAIN_MENU_NUM] = {"PLAY", "LEADERBOARD" , "EXIT"};
+
+#define PLAY_MENU_NUM 3
+std::string playMenu[PLAY_MENU_NUM] = {"NORMAL MODE", "DIFFICULT MODE", "BACK"};
+
+#define SIZE_MENU_NUM 3
+std::string sizeMenu[SIZE_MENU_NUM] = {"2 X 4", "5 X 8", "10 X 12"};
 
 using namespace std;
 
@@ -16,83 +27,89 @@ int main() {
     keypad(stdscr, TRUE);  // enable support for arrow keys
     curs_set(0);           // disable typing indicator
     init_pair(1, COLOR_CYAN, COLOR_WHITE);
+    init_pair(2, COLOR_CYAN, COLOR_BLACK);
 
     refresh();
 
-    int height, width;
+    bool isRunning = true;
+    while (isRunning) {
+        switch (ChooseMenu(mainMenu, MAIN_MENU_NUM)) {
+            case 0:
+            {
+                int mode = -1;
+                switch(ChooseMenu(playMenu, PLAY_MENU_NUM)){
+                    case 0: 
+                        mode = MODE_NORMAL;
+                    case 1:
+                        mode = MODE_DIFFICULT;
+                    case 2:
+                        break;
+                    default:
+                        break;
+                }
+                if (mode != -1) {
+                    int height, width;
+                    switch(ChooseMenu(sizeMenu, SIZE_MENU_NUM)) {
+                        case 0:
+                            height = 2; width = 4;
+                            break;
+                        case 1:
+                            height = 5; width = 8;
+                            break;
+                        case 2:
+                            height = 10; width = 12;
+                            break;
+                        default:
+                            break;
+                    }
 
-    // input board's size
-    WINDOW *inWin;
-    PrintPrompt(inWin, "Size:", 2);
+                    switch(PlayGame(height, width, mode)) {
+                        case FORCE_OUT:
+                            isRunning = false;
+                            break;
+                        case SURRENDER:
+                            DisplayEndScreen(SURRENDER);
+                            break;
+                        case FINISHED:
+                            DisplayEndScreen(FINISHED);
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
-    echo();
-    cbreak();
-    wrefresh(inWin);
-
-    mvwscanw(inWin, 1, (COLS - 3) / 2, "%i %i", &height, &width);
-
-    noecho();
-    raw();
-    
-    RemoveWin(inWin);
-
-    // Generate board
-    Card **board;
-    GenerateBoard(board, height, width);
-
-    // Play
-    bool gameOver = false;
-
-    while (!gameOver) {
-        WINDOW *background;
-        DisplayBackground(background);
-        DisplayBoard(board, height, width);
-
-        // Prompt before start
-        PrintPrompt(inWin, "Press any key to continue", 1, LINES - 1);
-
-        getch();
-
-        RemoveWin(inWin);
-
-        // Play
-        int pairsRemoved = 0;
-        int totalPairs = height * width / 2;
-
-        while (pairsRemoved < totalPairs) {
-            clear();
-            refresh();
-            touchwin(background);
-            wrefresh(background);
-            RefreshBoard(board, height, width);
-            Pos *selectedPos = new Pos[2];
-
-            string gameState = GetInput(board, height, width, selectedPos);
-            if (gameState == "force out") return 0;
-            if (gameState == "surrender") {
-                gameOver = true;
                 break;
             }
-            Pos *path;
-            int pathLen;
 
-            if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width, path, pathLen)) {
-            // if (FindPath(board, height, width, selectedPos, path)) {
-                DrawPath(board, height, width, path, pathLen);
-                //napms(1000); // Delay 1000ms
-                RemovePair(board, selectedPos);
-                ++pairsRemoved;
-            } else {
-                TogglePair(board, selectedPos);
-            }
+            case 1:
+                DisplayLeaderboard();
+                break;
+
+            case 2:
+                isRunning = false;
+                break;
         }
-        break;
     }
 
-    clear();
-    
-    PrintPrompt(inWin, "GAME OVER");
+    // int height, width;
 
+    // // input board's size
+    // WINDOW *inWin;
+    // PrintPrompt(inWin, "Size:", 2);
+
+    // echo();
+    // cbreak();
+    // wrefresh(inWin);
+
+    // mvwscanw(inWin, 1, (COLS - 3) / 2, "%i %i", &height, &width);
+
+    // noecho();
+    // raw();
+    
+    // RemoveWin(inWin);
+
+    clear();
+    refresh();
     getch();
     endwin();
 

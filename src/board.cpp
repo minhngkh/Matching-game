@@ -61,8 +61,8 @@ bool GenerateBoard(Card **&board, int height, int width) {
     uniform_int_distribution<int> heightDist(0, height - 1);
     uniform_int_distribution<int> widthDist(0, width - 1);
 
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
+    for (int i = 0; i < height; i += 2) {
+        for (int j = 0; j < width; j += 2) {
             swap(board[i][j], board[heightDist(gen)][widthDist(gen)]);
         }
     }
@@ -71,20 +71,22 @@ bool GenerateBoard(Card **&board, int height, int width) {
 }
 
 void DisplayCard(Card card) {
-    wbkgd(card.win, COLOR_PAIR(0));
-    box(card.win, 0, 0);
-    mvwaddch(card.win, CARD_HEIGHT / 2, CARD_WIDTH / 2, card.val);
+    wbkgd(card.win.core, COLOR_PAIR(0));
+    box(card.win.cover, 0, 0);
+    mvwaddch(card.win.core, (CARD_HEIGHT - 2 - 1) / 2, (CARD_WIDTH - 2 - 1) / 2, card.val);
 
-    touchwin(card.win);
-    wrefresh(card.win);
-    touchwin(card.win);
+    touchwin(card.win.cover);
+    touchwin(card.win.core);
+    wrefresh(card.win.core);
+    wrefresh(card.win.cover);
+    touchwin(card.win.cover);
 }
 
 void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
     // int boardHeight = sizeof(board) / sizeof(*board);
     // int boardWidth = sizeof(*board) / sizeof(**board);
-    int winHeight = boardHeight * CARD_HEIGHT + (boardHeight - 1);
-    int winWidth = boardWidth * CARD_WIDTH + (boardWidth - 1);
+    int winHeight = boardHeight * CARD_HEIGHT + (boardHeight - 1) * CARD_SPACE / 2;
+    int winWidth = boardWidth * CARD_WIDTH + (boardWidth - 1) * CARD_SPACE;
     int initY = (LINES - winHeight) / 2;
     int initX = (COLS - winWidth) / 2;
 
@@ -95,13 +97,14 @@ void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
         boardPos.x = initX;
 
         for (int j = 0; j < boardWidth; j++) {
-            board[i][j].win = newwin(CARD_HEIGHT, CARD_WIDTH, boardPos.y, boardPos.x);
+            board[i][j].win.cover = newwin(CARD_HEIGHT, CARD_WIDTH, boardPos.y, boardPos.x);
+            board[i][j].win.core = derwin(board[i][j].win.cover, CARD_HEIGHT - 2, CARD_WIDTH - 2, 1, 1);
 
             DisplayCard(board[i][j]);
-            boardPos.x += CARD_WIDTH + 1;
+            boardPos.x += CARD_WIDTH + CARD_SPACE;
         }
-        // Because char's height is about double the width, so we dont need spacing here
-        boardPos.y += CARD_HEIGHT;
+        // Because char's height is about double the width
+        boardPos.y += CARD_HEIGHT + CARD_SPACE / 2;
     }
 }
 
@@ -109,8 +112,9 @@ void RefreshBoard(Card **board, int boardHeight, int boardWidth) {
     for (int i = 0; i < boardHeight; i++) {
         for (int j = 0; j < boardWidth; j++) {
             if (board[i][j].status == "removed") continue;
-            touchwin(board[i][j].win);
-            wrefresh(board[i][j].win);
+            touchwin(board[i][j].win.cover);
+            wrefresh(board[i][j].win.core);
+            wrefresh(board[i][j].win.cover);
         }
     }
 }
@@ -120,27 +124,29 @@ bool ToggleCard(Card &card) {
         return false;
 
     if (card.status == "highlighted") {
-        wbkgd(card.win, COLOR_PAIR(0));
+        wbkgd(card.win.core, COLOR_PAIR(0));
         card.status = "none";
     } else {
-        wbkgd(card.win, COLOR_PAIR(1));
+        wbkgd(card.win.core, COLOR_PAIR(1));
         card.status = "highlighted";
     }
 
-    wrefresh(card.win);
+    wrefresh(card.win.core);
+    wrefresh(card.win.cover);
 
     return true;
 }
 
 bool UnselectCard(Card &card) {
-    wbkgd(card.win, COLOR_PAIR(0));
+    wbkgd(card.win.core, COLOR_PAIR(0));
     card.status = "none";
-    wrefresh(card.win);
+    wrefresh(card.win.core);
+    wrefresh(card.win.cover);
     return true;
 }
 
 
-string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
+int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
     int ch;
 
     // highlight the first card of the board
@@ -333,17 +339,17 @@ string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos)
                 break;
 
             case 3: //^C
-                return "force out";
+                return FORCE_OUT;
             
             case '0':
-                return "surrender";
+                return SURRENDER;
 
             default:
                 break;
         }
     }
 
-    return "none";
+    return NORMAL;
 }
 
 bool TogglePair(Card **board, Pos *pair) {
@@ -357,7 +363,7 @@ bool TogglePair(Card **board, Pos *pair) {
 void RemovePair(Card **board, Pos *pair) {
     for (int i = 0; i < 2; i++) {
         Card &currentCard = board[pair[i].y][pair[i].x];
-        RemoveWin(currentCard.win);
+        EmptyWin(currentCard.win.cover);
         currentCard.status = "removed";
     }
 }

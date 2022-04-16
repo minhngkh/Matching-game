@@ -1,7 +1,7 @@
 #pragma once
 
 #include "global.hpp"
-#include "screen.hpp"
+#include "display.hpp"
 #include <random>
 #include <string>
 
@@ -17,7 +17,12 @@ bool ToggleCard(Card &card);
 
 bool TogglePair(Card **board, Pos *pair);
 
-std::string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos);
+#define NORMAL 0
+#define FORCE_OUT 1
+#define SURRENDER 2
+#define FINISHED 3
+
+int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos);
 
 void RemovePair(Card **board, Pos* pair);
 

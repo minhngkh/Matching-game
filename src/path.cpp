@@ -733,6 +733,7 @@ bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path,
     else if (CheckI(p1, p2, board))
     {
         path = new Pos [2];
+        pathLen = 2;
         path[0] = p1;
         path[1] = p2;
 
@@ -750,107 +751,121 @@ bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path,
         return false;
 }
 
-void DrawArrow(Pos point, int direction) {
-    if (direction == DR_UP) {
-        mvaddch(point.y + 1 + CARD_HEIGHT / 2, point.x, ACS_UARROW);
-        return ;
-    }
-    if (direction == DR_DOWN) {
-        mvaddch(point.y - 1 - CARD_HEIGHT / 2, point.x, ACS_DARROW);
-        return;
-    }
-    if (direction == DR_RIGHT) {
-        mvaddch(point.y, point.x - 1 - CARD_WIDTH / 2, ACS_RARROW);
-        return ;
-    }
-    // left
-    mvaddch(point.y, point.x + 1 + CARD_WIDTH / 2, ACS_LARROW);
-}
-
 void DrawCorner(Pos &point, int lastDr, int currDr) {
+    attron(COLOR_PAIR(2));
+
     if ((lastDr == DR_UP && currDr == DR_RIGHT) || (lastDr == DR_LEFT && currDr == DR_DOWN)) {
         mvaddch(point.y, point.x, ACS_ULCORNER);
         mvaddch(point.y, point.x + 1, ACS_HLINE);
         mvaddch(point.y + 1, point.x, ACS_VLINE);
+
+        attroff(COLOR_PAIR(2));
         return ;
     }
     if ((lastDr == DR_RIGHT && currDr == DR_DOWN) || (lastDr == DR_UP && currDr == DR_LEFT)) {
         mvaddch(point.y, point.x, ACS_URCORNER);
         mvaddch(point.y, point.x - 1, ACS_HLINE);
         mvaddch(point.y + 1, point.x, ACS_VLINE);
+
+        attroff(COLOR_PAIR(2));
         return ;
     }
     if ((lastDr == DR_DOWN && currDr == DR_LEFT) || (lastDr == DR_RIGHT && currDr == DR_UP)) {
         mvaddch(point.y, point.x, ACS_LRCORNER);
         mvaddch(point.y, point.x - 1, ACS_HLINE);
-        mvaddch(point.y - 1, point.x, ACS_VLINE);    
+        mvaddch(point.y - 1, point.x, ACS_VLINE);  
+
+        attroff(COLOR_PAIR(2));
         return ;
     }
     // left + up & down + right;
     mvaddch(point.y, point.x, ACS_LLCORNER);
     mvaddch(point.y, point.x + 1, ACS_HLINE);
-    mvaddch(point.y - 1, point.x, ACS_VLINE);    
+    mvaddch(point.y - 1, point.x, ACS_VLINE);
+
+    attroff(COLOR_PAIR(2));
 }
 
 void DrawLine(Pos point1, Pos point2, int &direction) {
-    Pos *startPoint;
+    attron(COLOR_PAIR(2));
+
+    int startPos;
 
     if (point1.x == point2.x) {
         if (point1.y < point2.y) {
-            startPoint = &point1;
+            startPos = point1.y + CARD_HEIGHT / 2;
             direction = DR_DOWN;
         } else {
-            startPoint = &point2;
+            startPos = point2.y + CARD_HEIGHT / 2;
             direction = DR_UP;
         }
-        mvaddch(startPoint->y, startPoint->x, abs(point2.y - point1.y) - 1 - CARD_HEIGHT / 2 * 2);
+        mvvline(startPos, point1.x, 0, abs(point2.y - point1.y) + 1 - (CARD_HEIGHT / 2) * 2);
+
+        attroff(COLOR_PAIR(2));
+        return ;
     }
     
     // equal y
     if (point1.x < point2.x) {
-        startPoint = &point1;
+        startPos = point1.x + CARD_WIDTH / 2;
         direction = DR_RIGHT;
     } else {
-        startPoint = &point2;
+        startPos = point2.x + CARD_WIDTH / 2;
         direction = DR_LEFT;
     }
-    mvaddch(startPoint->y, startPoint->x, abs(point2.x - point1.x) - 1 - CARD_WIDTH / 2 * 2);
+    mvhline(point1.y, startPos, 0, abs(point2.x - point1.x) + 1 - (CARD_WIDTH / 2) * 2);
+
+    attroff(COLOR_PAIR(2));
 }
 
 void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen) {
     Pos *points = new Pos[pathLen];
     Pos lastPoint, currPoint;
     int lastDr, currDr;
+    int offsetSadCase = 0;
+
     for (int i = 0; i < pathLen; i++) {
         int y = path[i].y;
         int x = path[i].x;
         
         if (i != 0) lastPoint = currPoint;
 
-        if (path[i].y == -1) 
-            currPoint.y = getbegy(board[y + 1][x].win) - 1 - CARD_HEIGHT / 2;
-        else if (path[i].y == boardHeight) 
-            currPoint.y = getbegy(board[y - 1][x].win) + CARD_HEIGHT + CARD_HEIGHT / 2;
-        else 
-            currPoint.y = getbegy(board[y][x].win) + CARD_HEIGHT / 2;
+        if (path[i].y == -1) {
+            currPoint.y = - 1 - CARD_SPACE / 2 - CARD_HEIGHT / 2;
+            ++y;
+        } else if (path[i].y == boardHeight) {
+            currPoint.y = CARD_HEIGHT + CARD_HEIGHT / 2;
+            --y;
+        } else {
+            currPoint.y = CARD_HEIGHT / 2;
+        }
 
-        if (path[i].x == -1) 
-            currPoint.x = getbegx(board[y][x + 1].win) - 1 - CARD_WIDTH / 2;
-        else if (path[i].x == boardWidth)
-            currPoint.x = getbegx(board[y][x - 1].win) + CARD_WIDTH + CARD_WIDTH / 2;
-        else 
-            currPoint.x = getbegx(board[y][x].win) + CARD_WIDTH / 2;
+        if (path[i].x == -1) {
+            currPoint.x = - 1 - CARD_SPACE - CARD_WIDTH / 2;
+            ++x;
+        } else if (path[i].x == boardWidth) {
+            currPoint.x = CARD_WIDTH + CARD_WIDTH / 2;
+            --x;
+        } else {
+            currPoint.x = CARD_WIDTH / 2;
+        }
 
+        currPoint.y += getbegy(board[y][x].win.cover);
+        currPoint.x += getbegx(board[y][x].win.cover);
+    
         if (i == 0) continue;
+
+        // value return from checkpath by Hoang give dupliacate values in L case
+        if (lastPoint.x == currPoint.x && lastPoint.y == currPoint.y) {
+            ++offsetSadCase;
+            continue;
+        }
 
         lastDr = currDr;
         DrawLine(lastPoint, currPoint, currDr);
 
-        if (i == 1) DrawArrow(lastPoint, lastDr);
-
-        if (i == pathLen - 1) DrawArrow(lastPoint, currDr);
-        else {
-            DrawCorner(currPoint, lastDr, currDr);
-        }
+        if (i > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
+        // crucial to refresh, without it, random bugs may appear
+        refresh();
     }
 }
