@@ -9,8 +9,8 @@
 
 
 struct Box {
-    WINDOW *border;
-    WINDOW *content;
+    WINDOW *cover;
+    WINDOW *core;
 };
 struct Pos {
     int y, x;
@@ -19,5 +19,5 @@ struct Pos {
 struct Card {
     char val;
     std::string status = "none";
-    WINDOW *win;
+    Box win;
 };

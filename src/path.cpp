@@ -843,12 +843,12 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
             currPoint.x = CARD_WIDTH / 2;
         }
 
-        currPoint.y += getbegy(board[y][x].win);
-        currPoint.x += getbegx(board[y][x].win);
+        currPoint.y += getbegy(board[y][x].win.cover);
+        currPoint.x += getbegx(board[y][x].win.cover);
     
         if (i == 0) continue;
 
-        // value return from path.cpp made by Hoang give dupliacate values in L case
+        // value return from checkpath by Hoang give dupliacate values in L case
         if (lastPoint.x == currPoint.x && lastPoint.y == currPoint.y) {
             ++offsetSadCase;
             continue;

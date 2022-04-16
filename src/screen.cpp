@@ -5,12 +5,12 @@ using namespace std;
 void InteractMenu(Box *menuWins, int options, int hightlight) {
     for (int i = 0; i < options; i++) {
         if (hightlight == i) {
-            wbkgd(menuWins[i].content, COLOR_PAIR(1));
+            wbkgd(menuWins[i].core, COLOR_PAIR(1));
         } else {
-            wbkgd(menuWins[i].content, COLOR_PAIR(0));
+            wbkgd(menuWins[i].core, COLOR_PAIR(0));
         }
-        wrefresh(menuWins[i].border);
-        wrefresh(menuWins[i].content);
+        wrefresh(menuWins[i].cover);
+        wrefresh(menuWins[i].core);
     }
 }
 
@@ -27,11 +27,12 @@ int ChooseMenu(string *menu, int options) {
     menuWidth += MENU_PADDING;
     Box *menuWins = new Box[options];
     for (int i = 0; i < options; i++) {
-        menuWins[i].border = newwin(3, menuWidth + 2, (LINES - options * 3) / 2 + i * 3, (COLS - menuWidth - 2) / 2 );
-        menuWins[i].content = derwin(menuWins[i].border, 1, menuWidth, 1, 1);
-        box(menuWins[i].border, 0, 0);
-        mvwaddstr(menuWins[i].content, 0, (menuWidth - menu[i].length()) / 2, menu[i].c_str());
-        wrefresh(menuWins[i].border);
+        menuWins[i].cover = newwin(3, menuWidth + 2, (LINES - options * 3) / 2 + i * 3, (COLS - menuWidth - 2) / 2 );
+        menuWins[i].core = derwin(menuWins[i].cover, 1, menuWidth, 1, 1);
+        box(menuWins[i].cover, 0, 0);
+        mvwaddstr(menuWins[i].core, 0, (menuWidth - menu[i].length()) / 2, menu[i].c_str());
+        wrefresh(menuWins[i].core);
+        wrefresh(menuWins[i].cover);
     }
     InteractMenu(menuWins, options, highlight);
     

@@ -71,13 +71,15 @@ bool GenerateBoard(Card **&board, int height, int width) {
 }
 
 void DisplayCard(Card card) {
-    wbkgd(card.win, COLOR_PAIR(0));
-    box(card.win, 0, 0);
-    mvwaddch(card.win, CARD_HEIGHT / 2, CARD_WIDTH / 2, card.val);
+    wbkgd(card.win.core, COLOR_PAIR(0));
+    box(card.win.cover, 0, 0);
+    mvwaddch(card.win.core, (CARD_HEIGHT - 2 - 1) / 2, (CARD_WIDTH - 2 - 1) / 2, card.val);
 
-    touchwin(card.win);
-    wrefresh(card.win);
-    touchwin(card.win);
+    touchwin(card.win.cover);
+    touchwin(card.win.core);
+    wrefresh(card.win.core);
+    wrefresh(card.win.cover);
+    touchwin(card.win.cover);
 }
 
 void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
@@ -95,7 +97,8 @@ void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
         boardPos.x = initX;
 
         for (int j = 0; j < boardWidth; j++) {
-            board[i][j].win = newwin(CARD_HEIGHT, CARD_WIDTH, boardPos.y, boardPos.x);
+            board[i][j].win.cover = newwin(CARD_HEIGHT, CARD_WIDTH, boardPos.y, boardPos.x);
+            board[i][j].win.core = derwin(board[i][j].win.cover, CARD_HEIGHT - 2, CARD_WIDTH - 2, 1, 1);
 
             DisplayCard(board[i][j]);
             boardPos.x += CARD_WIDTH + CARD_SPACE;
@@ -109,8 +112,9 @@ void RefreshBoard(Card **board, int boardHeight, int boardWidth) {
     for (int i = 0; i < boardHeight; i++) {
         for (int j = 0; j < boardWidth; j++) {
             if (board[i][j].status == "removed") continue;
-            touchwin(board[i][j].win);
-            wrefresh(board[i][j].win);
+            touchwin(board[i][j].win.cover);
+            wrefresh(board[i][j].win.core);
+            wrefresh(board[i][j].win.cover);
         }
     }
 }
@@ -120,22 +124,24 @@ bool ToggleCard(Card &card) {
         return false;
 
     if (card.status == "highlighted") {
-        wbkgd(card.win, COLOR_PAIR(0));
+        wbkgd(card.win.core, COLOR_PAIR(0));
         card.status = "none";
     } else {
-        wbkgd(card.win, COLOR_PAIR(1));
+        wbkgd(card.win.core, COLOR_PAIR(1));
         card.status = "highlighted";
     }
 
-    wrefresh(card.win);
+    wrefresh(card.win.core);
+    wrefresh(card.win.cover);
 
     return true;
 }
 
 bool UnselectCard(Card &card) {
-    wbkgd(card.win, COLOR_PAIR(0));
+    wbkgd(card.win.core, COLOR_PAIR(0));
     card.status = "none";
-    wrefresh(card.win);
+    wrefresh(card.win.core);
+    wrefresh(card.win.cover);
     return true;
 }
 
@@ -357,7 +363,7 @@ bool TogglePair(Card **board, Pos *pair) {
 void RemovePair(Card **board, Pos *pair) {
     for (int i = 0; i < 2; i++) {
         Card &currentCard = board[pair[i].y][pair[i].x];
-        EmptyWin(currentCard.win);
+        EmptyWin(currentCard.win.cover);
         currentCard.status = "removed";
     }
 }
