@@ -1,12 +1,16 @@
 #pragma once
 
 #include "global.hpp"
+#include "board.hpp"
+#include "path.hpp"
 #include "curses.h"
+#include "test.hpp"
 #include <string>
 #include <fstream>
 
 #define MENU_PADDING 3
 #define MENU_SPACE 0
+
 int ChooseMenu(std::string *menu, int options);
 
 void PrintInMiddle(WINDOW *win, std::string str);
@@ -15,4 +19,15 @@ void PrintPrompt(WINDOW *&win, std::string prompt, int lines = 1, int y = LINES 
 void EmptyWin(WINDOW *win);
 void RemoveWin(WINDOW *win);
 
-void DisplayBackground(WINDOW *&win);
+#define BACKGROUND "resources/poke.art"
+#define WIN_PROMPT "resources/win.art"
+#define LOSE_PROMPT "resources/lose.art"
+
+void DisplayArt(WINDOW *&win, std::string art);
+
+#define MODE_NORMAL 0
+#define MODE_DIFFICULT 1
+
+int PlayGame(int height, int width, int mode);
+
+void DisplayEndScreen(int mode);

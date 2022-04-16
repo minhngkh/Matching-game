@@ -61,8 +61,8 @@ bool GenerateBoard(Card **&board, int height, int width) {
     uniform_int_distribution<int> heightDist(0, height - 1);
     uniform_int_distribution<int> widthDist(0, width - 1);
 
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
+    for (int i = 0; i < height; i += 2) {
+        for (int j = 0; j < width; j += 2) {
             swap(board[i][j], board[heightDist(gen)][widthDist(gen)]);
         }
     }
@@ -146,7 +146,7 @@ bool UnselectCard(Card &card) {
 }
 
 
-string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
+int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
     int ch;
 
     // highlight the first card of the board
@@ -339,17 +339,17 @@ string GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos)
                 break;
 
             case 3: //^C
-                return "force out";
+                return FORCE_OUT;
             
             case '0':
-                return "surrender";
+                return SURRENDER;
 
             default:
                 break;
         }
     }
 
-    return "none";
+    return NORMAL;
 }
 
 bool TogglePair(Card **board, Pos *pair) {

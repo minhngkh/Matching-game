@@ -2,7 +2,7 @@
 
 #include "global.hpp"
 #include <string>
-#include "screen.hpp"
+#include "display.hpp"
 #include <fstream>
 #include <sstream>
 

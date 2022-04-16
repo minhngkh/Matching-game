@@ -25,8 +25,8 @@ bool test() {
 }
 
 void GenerateTest(Card **&board, int &height, int &width) {
-    height = 4;
-    width = 4;
+    height = 5;
+    width = 8;
 
     board = new Card*[width];
     for (int i = 0; i < height; i++) {

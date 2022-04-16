@@ -1,4 +1,4 @@
-#include "screen.hpp"
+#include "display.hpp"
 
 using namespace std;
 
@@ -15,6 +15,9 @@ void InteractMenu(Box *menuWins, int options, int hightlight) {
 }
 
 int ChooseMenu(string *menu, int options) {
+    clear();
+    refresh();
+
     int highlight = 0;
     int choice = 0;
     int ch;
@@ -94,8 +97,8 @@ void RemoveWin(WINDOW *win) {
     delwin(win);
 }
 
-void DisplayBackground(WINDOW *&win) {
-    ifstream ifs("resources/poke.art");
+void DisplayArt(WINDOW *&win, string art) {
+    ifstream ifs(art);
 
     if (!ifs) return;
 
@@ -125,4 +128,107 @@ void DisplayBackground(WINDOW *&win) {
     }
 
     wrefresh(win);
+}
+
+int PlayGame(int height, int width, int mode) {
+    // Generate board
+    Card **board;
+    GenerateBoard(board, height, width);
+    //GenerateTest(board, height, width);
+
+    WINDOW *background;
+    DisplayArt(background, BACKGROUND);
+    DisplayBoard(board, height, width);
+
+    // Prompt before start
+    WINDOW *promptWin;
+    PrintPrompt(promptWin, "Press any key to continue", 1, LINES - 1);
+
+    getch();
+
+    RemoveWin(promptWin);
+
+    // Play
+    int pairsRemoved = 0;
+    int totalPairs = height * width / 2;
+
+    while (pairsRemoved < totalPairs) {
+        clear();
+        refresh();
+        touchwin(background);
+        wrefresh(background);
+        RefreshBoard(board, height, width);
+        Pos *selectedPos = new Pos[2];
+
+        int gameState = GetInput(board, height, width, selectedPos);
+        if (gameState != NORMAL) {
+            clear();
+            RemoveWin(background);
+            refresh();
+            return gameState;
+        }
+
+        Pos *path;
+        int pathLen;
+
+        if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width, path, pathLen)) {
+        // if (FindPath(board, height, width, selectedPos, path)) {
+            DrawPath(board, height, width, path, pathLen);
+            getch();
+            //napms(1000); // Delay 1000ms
+            RemovePair(board, selectedPos);
+            ++pairsRemoved;
+        } else {
+            TogglePair(board, selectedPos);
+        }
+    }
+
+    clear();
+    RemoveWin(background);
+    refresh();
+    
+    return FINISHED;
+}
+
+void DisplayEndScreen(int mode) {
+    WINDOW *prompt;
+    if (mode == SURRENDER) {
+        DisplayArt(prompt, LOSE_PROMPT);
+    } 
+    // win
+    DisplayArt(prompt, WIN_PROMPT);
+
+    WINDOW *inputWin;
+
+    const int SPACE_INPUT = 10;
+    string out = "Enter your name:";
+    string in;
+    
+    int startX = (COLS - out.length() - SPACE_INPUT) / 2;
+    PrintPrompt(inputWin, out, 1, LINES - 2, startX);
+
+    echo();
+    nocbreak();
+    wrefresh(inputWin);
+    curs_set(1);
+
+    move(LINES - 2, startX + out.length() + 1);
+
+    int ch = getch();
+    while ( ch != '\n' )
+    {
+        in.push_back( ch );
+        ch = getch();
+    }
+    
+
+    noecho();
+    raw();
+    curs_set(0);
+
+    RemoveWin(inputWin);
+
+    mvaddstr(0,0,in.c_str());
+
+    getch();
 }
