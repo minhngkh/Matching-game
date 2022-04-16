@@ -168,7 +168,7 @@ bool CheckU_Up(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path, int &
             path[1].x = pMinX.x;
 
             path[2].y = height;
-            path[3].x = pMaxX.x;
+            path[2].x = pMaxX.x;
 
             path[3] = pMaxX;
 
@@ -187,7 +187,7 @@ bool CheckU_Up(Pos pMinX, Pos pMaxX, Card **board, int height, Pos* &path, int &
             path[1].x = pMinX.x;
 
             path[2].y = height;
-            path[3].x = pMaxX.x;
+            path[2].x = pMaxX.x;
 
             path[3] = pMaxX;
              
