@@ -363,10 +363,9 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                     UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
                 }
                 if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
-                    return ST_NORMAL;
+                    return ST_RESET;
                 }
                 return ST_NOPAIRS;
-
             default:
                 break;
         }
