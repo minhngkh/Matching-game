@@ -342,7 +342,7 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                 return ST_FORCE_OUT;
             
             case '0':
-                return ST_SURRENDER;
+                return ST_SURRENDER;                
 
             case '9':
                 // clear selected state of all current cards
@@ -350,10 +350,22 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                 for (int i = 0; i < selectedCards; i++) {
                     UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
                 }
-                FindHint(board, boardHeight, boardWidth, path, pathLen);
-                selectedPos[0] = path[0];
-                selectedPos[1] = path[pathLen - 1];
-                return ST_ASSISTED;
+                if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
+                    selectedPos[0] = path[0];
+                    selectedPos[1] = path[pathLen - 1];
+                    return ST_ASSISTED;
+                }
+                return ST_NOPAIRS;
+
+            case '8': //endgame check
+                UnselectCard(board[currPos.y][currPos.x]);
+                for (int i = 0; i < selectedCards; i++) {
+                    UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
+                }
+                if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
+                    return ST_NORMAL;
+                }
+                return ST_NOPAIRS;
 
             default:
                 break;

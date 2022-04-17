@@ -159,6 +159,10 @@ int PlayGame(int height, int width, int mode) {
         touchwin(background);
         wrefresh(background);
         RefreshBoard(board, height, width);
+
+        WINDOW *instructWin;
+        PrintPrompt(instructWin, "8: endgame check  9: Help  0: Surrender", 1, 1);
+
         Pos *selectedPos = new Pos[2];
         Pos *path;
         int pathLen;
@@ -186,6 +190,19 @@ int PlayGame(int height, int width, int mode) {
 
             ++pairsRemoved;
             continue;
+        }
+
+        if (gameState == ST_NOPAIRS) {
+            WINDOW *prompt;
+            PrintPrompt(prompt, "No available pairs left. Press any key to end the game", 1, LINES - 2);
+            
+            getch();
+            clear();
+            RemoveWin(background);
+            RemoveWin(prompt);
+            refresh();
+
+            return ST_SURRENDER;
         }
 
         if (gameState != ST_NORMAL) {
@@ -225,6 +242,7 @@ void DisplayEndScreen(int mode) {
     WINDOW *prompt;
     if (mode == ST_SURRENDER) {
         DisplayArt(prompt, LOSE_PROMPT);
+        getch();
         return;
     } 
     // win
