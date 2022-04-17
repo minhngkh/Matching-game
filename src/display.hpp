@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 
-#define MENU_PADDING 3
+#define MENU_PADDING 1
 #define MENU_SPACE 0
 
 int ChooseMenu(std::string *menu, int options);

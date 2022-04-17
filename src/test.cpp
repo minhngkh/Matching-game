@@ -39,7 +39,7 @@ void GenerateTest(Card **&board, int &height, int &width) {
     int i = 0;
     while (getline(ifs, line)) {
         for (int j = 0; j < width; j++) {
-            if (line[j] == '-') board[i][j].status = "removed";
+            if (line[j] == '-') board[i][j].status = STATUS_REMOVED;
             else board[i][j].val = line[j];
         }
         ++i;

@@ -12,7 +12,7 @@ std::string mainMenu[MAIN_MENU_NUM] = {"PLAY", "LEADERBOARD" , "EXIT"};
 std::string playMenu[PLAY_MENU_NUM] = {"NORMAL MODE", "DIFFICULT MODE", "BACK"};
 
 #define SIZE_MENU_NUM 3
-std::string sizeMenu[SIZE_MENU_NUM] = {"2 X 4", "5 X 8", "10 X 12"};
+std::string sizeMenu[SIZE_MENU_NUM] = {"2 X 3", "4 X 6", "6 X 8"};
 
 using namespace std;
 
@@ -40,8 +40,10 @@ int main() {
                 switch(ChooseMenu(playMenu, PLAY_MENU_NUM)){
                     case 0: 
                         mode = MODE_NORMAL;
+                        break;
                     case 1:
                         mode = MODE_DIFFICULT;
+                        break;
                     case 2:
                         break;
                     default:
@@ -51,27 +53,27 @@ int main() {
                     int height, width;
                     switch(ChooseMenu(sizeMenu, SIZE_MENU_NUM)) {
                         case 0:
-                            height = 2; width = 4;
+                            height = 2; width = 3;
                             break;
                         case 1:
-                            height = 5; width = 8;
+                            height = 4; width = 6;
                             break;
                         case 2:
-                            height = 10; width = 12;
+                            height = 6; width = 8;
                             break;
                         default:
                             break;
                     }
 
                     switch(PlayGame(height, width, mode)) {
-                        case FORCE_OUT:
+                        case ST_FORCE_OUT:
                             isRunning = false;
                             break;
-                        case SURRENDER:
-                            DisplayEndScreen(SURRENDER);
+                        case ST_SURRENDER:
+                            DisplayEndScreen(ST_SURRENDER);
                             break;
-                        case FINISHED:
-                            DisplayEndScreen(FINISHED);
+                        case ST_FINISHED:
+                            DisplayEndScreen(ST_FINISHED);
                             break;
                         default:
                             break;

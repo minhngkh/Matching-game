@@ -1,7 +1,6 @@
 #pragma once
 
 #include "curses.h"
-#include <string>
 
 #define CARD_WIDTH 5
 #define CARD_HEIGHT 3
@@ -16,8 +15,12 @@ struct Pos {
     int y, x;
 };
 
+#define STATUS_NONE 0
+#define STATUS_HIGHLIGHTED 1
+#define STATUS_SELECTED 2
+#define STATUS_REMOVED 3
 struct Card {
     char val;
-    std::string status = "none";
+    int status = STATUS_NONE;
     Box win;
 };

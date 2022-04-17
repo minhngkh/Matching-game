@@ -17,15 +17,16 @@ bool ToggleCard(Card &card);
 
 bool TogglePair(Card **board, Pos *pair);
 
-#define NORMAL 0
-#define FORCE_OUT 1
-#define SURRENDER 2
-#define FINISHED 3
+#define ST_NORMAL 0
+#define ST_FORCE_OUT 1
+#define ST_SURRENDER 2
+#define ST_FINISHED 3
+#define ST_ASSISTED 4
 
-int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos);
+int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen);
 
 void RemovePair(Card **board, Pos* pair);
 
-void SlideBoard(int **board, int boardHeight, int boardWidth, Pos removedPos);
+void SlideBoard(Card **board, int boardWidth, Pos removedPos);
 
-void SlideBoard(int **board, int boardHeight, int boardWidth, Pos *removedPos);
+void SlideBoard(Card **board, int boardWidth, Pos *removedPos);

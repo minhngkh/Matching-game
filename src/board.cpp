@@ -111,7 +111,7 @@ void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
 void RefreshBoard(Card **board, int boardHeight, int boardWidth) {
     for (int i = 0; i < boardHeight; i++) {
         for (int j = 0; j < boardWidth; j++) {
-            if (board[i][j].status == "removed") continue;
+            if (board[i][j].status == STATUS_REMOVED) continue;
             touchwin(board[i][j].win.cover);
             wrefresh(board[i][j].win.core);
             wrefresh(board[i][j].win.cover);
@@ -120,15 +120,15 @@ void RefreshBoard(Card **board, int boardHeight, int boardWidth) {
 }
 
 bool ToggleCard(Card &card) {
-    if (card.status == "selected" || card.status == "removed") 
+    if (card.status == STATUS_SELECTED || card.status == STATUS_REMOVED) 
         return false;
 
-    if (card.status == "highlighted") {
+    if (card.status == STATUS_HIGHLIGHTED) {
         wbkgd(card.win.core, COLOR_PAIR(0));
-        card.status = "none";
+        card.status = STATUS_NONE;
     } else {
         wbkgd(card.win.core, COLOR_PAIR(1));
-        card.status = "highlighted";
+        card.status = STATUS_HIGHLIGHTED;
     }
 
     wrefresh(card.win.core);
@@ -139,14 +139,14 @@ bool ToggleCard(Card &card) {
 
 bool UnselectCard(Card &card) {
     wbkgd(card.win.core, COLOR_PAIR(0));
-    card.status = "none";
+    card.status = STATUS_NONE;
     wrefresh(card.win.core);
     wrefresh(card.win.cover);
     return true;
 }
 
 
-int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
+int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen) {
     int ch;
 
     // highlight the first card of the board
@@ -156,7 +156,7 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
     for (int i = 0; i < boardHeight; i++) {
         if (beenFound) break;  
         for (int j = 0; j < boardWidth; j++) {
-            if (board[i][j].status != "removed") {
+            if (board[i][j].status != STATUS_REMOVED) {
                 currPos = {i, j};
                 ToggleCard(board[i][j]);
                 beenFound = true;
@@ -194,10 +194,10 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
                     // loop until an available card is found in row
                     while (currPos.x != 0) {
                         --currPos.x;
-                        if (board[currPos.y][currPos.x].status != "removed") break;
+                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == "removed" && currPos.x == 0) {
+                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.x == 0) {
                         // card not found in row so reset
                         currPos.x = initPos.x;
                     } else {
@@ -232,10 +232,10 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
 
                     while (currPos.x != boardWidth - 1) {
                         ++currPos.x;
-                        if (board[currPos.y][currPos.x].status != "removed") break;
+                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == "removed" && currPos.x == boardWidth - 1) {
+                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.x == boardWidth - 1) {
                         currPos.x = initPos.x;
                     } else {
                         toToggle = true;
@@ -269,10 +269,10 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
 
                     while (currPos.y != 0) {
                         --currPos.y;
-                        if (board[currPos.y][currPos.x].status != "removed") break;
+                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == "removed" && currPos.y == 0) {
+                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.y == 0) {
                         currPos.y = initPos.y;
                     } else {
                         toToggle = true;
@@ -306,10 +306,10 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
 
                     while (currPos.y != boardHeight - 1) {
                         ++currPos.y;
-                        if (board[currPos.y][currPos.x].status != "removed") break;
+                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == "removed" && currPos.y == boardHeight - 1) {
+                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.y == boardHeight - 1) {
                         currPos.y = initPos.y;
                     } else {
                         toToggle = true;
@@ -329,9 +329,9 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
             case '\r':
             case '\n':
             case KEY_ENTER:
-                if (board[currPos.y][currPos.x].status == "selected") break;
+                if (board[currPos.y][currPos.x].status == STATUS_SELECTED) break;
 
-                board[currPos.y][currPos.x].status = "selected";
+                board[currPos.y][currPos.x].status = STATUS_SELECTED;
 
                 selectedPos[selectedCards] = currPos;
                 ++selectedCards;
@@ -339,17 +339,28 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos) {
                 break;
 
             case 3: //^C
-                return FORCE_OUT;
+                return ST_FORCE_OUT;
             
             case '0':
-                return SURRENDER;
+                return ST_SURRENDER;
+
+            case '9':
+                // clear selected state of all current cards
+                UnselectCard(board[currPos.y][currPos.x]);
+                for (int i = 0; i < selectedCards; i++) {
+                    UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
+                }
+                FindHint(board, boardHeight, boardWidth, path, pathLen);
+                selectedPos[0] = path[0];
+                selectedPos[1] = path[pathLen - 1];
+                return ST_ASSISTED;
 
             default:
                 break;
         }
     }
 
-    return NORMAL;
+    return ST_NORMAL;
 }
 
 bool TogglePair(Card **board, Pos *pair) {
@@ -364,6 +375,37 @@ void RemovePair(Card **board, Pos *pair) {
     for (int i = 0; i < 2; i++) {
         Card &currentCard = board[pair[i].y][pair[i].x];
         EmptyWin(currentCard.win.cover);
-        currentCard.status = "removed";
+        currentCard.status = STATUS_REMOVED;
     }
+}
+
+// slide from right to left
+void SlideBoard(Card **board, int boardWidth, Pos removedPos) {
+    int y = removedPos.y;
+    int x = removedPos.x + 1;
+
+    if (x == (boardWidth) || board[y][x].status == STATUS_REMOVED) return;
+
+    while (x < boardWidth && board[y][x].status != STATUS_REMOVED) {
+        board[y][x - 1].val = board[y][x].val;
+        board[y][x - 1].status = board[y][x].status;
+
+        DisplayCard(board[y][x - 1]);
+
+        ++x;
+    }
+
+    board[y][x - 1].status = STATUS_REMOVED;
+    EmptyWin(board[y][x - 1].win.cover);
+}
+ 
+void SlideBoard(Card **board, int boardWidth, Pos *removedPos) {
+    Pos posL = removedPos[0];
+    Pos posR = removedPos[1];
+
+    if (posL.x > posR.x) swap(posL, posR);
+
+    // slide card on the right first because SlideBoard func only works with row having 1 removed card
+    SlideBoard(board, boardWidth, posR);
+    SlideBoard(board, boardWidth, posL);
 }

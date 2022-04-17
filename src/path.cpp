@@ -24,7 +24,7 @@ bool CheckLineX(int x1, int x2, Card **board, int y) {
     }
 
     for (int x = min; x <= max; x++)
-        if (board[y][x].status == "none") return false;
+        if (board[y][x].status == STATUS_NONE) return false;
 
     return true;
 }
@@ -39,7 +39,7 @@ bool CheckLineY(int y1, int y2, Card **board, int x) {
 
     // Chạy đường thẳng y để kiểm tra đường đi
     for (int y = min; y <= max; y++)
-        if (board[y][x].status == "none") return false;
+        if (board[y][x].status == STATUS_NONE) return false;
 
     return true;
 }
@@ -704,20 +704,36 @@ bool CheckU(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path, int
     return false;
 }
 //=======================================================================================
-bool Hint(Card **board, int height, int width, Pos* &path, int &pathLen) {
-    for(int i = 0; i < height * width - 1; i++)
-        for(int j = i + 1; j < height * width; j++)
-        {
-            Pos p1, p2;
-            p1.y = i / width;
-            p1.x = i % width;
+bool FindHint(Card **board, int height, int width, Pos* &path, int &pathLen) {
+    for(int i = 0; i < height * width - 1; i++) {
+        Pos p1;
+        p1.y = i / width;
+        p1.x = i % width;
+        
+        if (board[p1.y][p1.x].status == STATUS_REMOVED) continue;
 
+        board[p1.y][p1.x].status = STATUS_HIGHLIGHTED;
+
+        for(int j = i + 1; j < height * width; j++) {
+            Pos p2;
             p2.y = j / width;
             p2.x = j % width;
 
-            if(CheckPaths(p1, p2, board, height, width, path, pathLen));
+            if (board[p2.y][p2.x].status == STATUS_REMOVED) continue; 
+
+            board[p2.y][p2.x].status = STATUS_HIGHLIGHTED;
+
+            if(CheckPaths(p1, p2, board, height, width, path, pathLen)) {
+                board[p1.y][p1.x].status = STATUS_NONE;
+                board[p2.y][p2.x].status = STATUS_NONE;
                 return true;
+            }
+
+            board[p2.y][p2.x].status = STATUS_NONE;
         }
+
+        board[p1.y][p1.x].status = STATUS_NONE;
+    }
     return false;
 }
 

@@ -27,7 +27,8 @@ int ChooseMenu(string *menu, int options) {
         if (menu[i].length() > menuWidth) menuWidth = menu[i].length();
     }
 
-    menuWidth += MENU_PADDING;
+    // padding for both left and right side
+    menuWidth += MENU_PADDING * 2;
     Box *menuWins = new Box[options];
     for (int i = 0; i < options; i++) {
         menuWins[i].cover = newwin(3, menuWidth + 2, (LINES - options * 3) / 2 + i * 3, (COLS - menuWidth - 2) / 2 );
@@ -159,24 +160,54 @@ int PlayGame(int height, int width, int mode) {
         wrefresh(background);
         RefreshBoard(board, height, width);
         Pos *selectedPos = new Pos[2];
+        Pos *path;
+        int pathLen;
 
-        int gameState = GetInput(board, height, width, selectedPos);
-        if (gameState != NORMAL) {
+        int gameState = GetInput(board, height, width, selectedPos, path, pathLen);
+
+        if (gameState == ST_ASSISTED) {
+            ToggleCard(board[selectedPos[0].y][selectedPos[0].x]);
+            ToggleCard(board[selectedPos[1].y][selectedPos[1].x]);
+
+            
+            // wait for user to recognize the pair
+            getch();
+
+            DrawPath(board, height, width, path, pathLen);
+            refresh();
+            // delay 150 ms
+            napms(150);
+            // remove any character pressed when the delay happens
+            flushinp();
+
+            RemovePair(board, selectedPos);
+
+            if (mode == MODE_DIFFICULT) SlideBoard(board, width, selectedPos);
+
+            ++pairsRemoved;
+            continue;
+        }
+
+        if (gameState != ST_NORMAL) {
             clear();
             RemoveWin(background);
             refresh();
             return gameState;
         }
 
-        Pos *path;
-        int pathLen;
-
         if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width, path, pathLen)) {
         // if (FindPath(board, height, width, selectedPos, path)) {
             DrawPath(board, height, width, path, pathLen);
-            getch();
-            //napms(1000); // Delay 1000ms
+            refresh();
+            // delay 150 ms
+            napms(150);
+            // remove any character pressed when the delay happens
+            flushinp();
+
             RemovePair(board, selectedPos);
+
+            if (mode == MODE_DIFFICULT) SlideBoard(board, width, selectedPos);
+
             ++pairsRemoved;
         } else {
             TogglePair(board, selectedPos);
@@ -187,12 +218,12 @@ int PlayGame(int height, int width, int mode) {
     RemoveWin(background);
     refresh();
     
-    return FINISHED;
+    return ST_FINISHED;
 }
 
 void DisplayEndScreen(int mode) {
     WINDOW *prompt;
-    if (mode == SURRENDER) {
+    if (mode == ST_SURRENDER) {
         DisplayArt(prompt, LOSE_PROMPT);
         return;
     } 
