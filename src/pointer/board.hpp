@@ -23,6 +23,7 @@ bool TogglePair(Card **board, Pos *pair);
 #define ST_FINISHED 3
 #define ST_ASSISTED 4
 #define ST_NOPAIRS 5
+#define ST_RESET 6
 
 int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen);
 

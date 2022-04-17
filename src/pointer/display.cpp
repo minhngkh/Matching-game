@@ -192,6 +192,8 @@ int PlayGame(int height, int width, int mode) {
             continue;
         }
 
+        if (gameState == ST_RESET) continue;
+
         if (gameState == ST_NOPAIRS) {
             WINDOW *prompt;
             PrintPrompt(prompt, "No available pairs left. Press any key to end the game", 1, LINES - 2);
