@@ -1,3 +1,5 @@
+#pragma once
+
 #include "global.hpp"
 
 struct Node {
@@ -35,6 +37,8 @@ void InsertAfter(List &currList, Node *currNode, Card newData);
 
 void Append(List &currList , Card newData);
 void Append(Path &currPath, Pos newData);
+
+void EmptyPath(Path &currPath);
 
 bool Pop(List &currList);
 bool Pop(List &currList, int pos);
