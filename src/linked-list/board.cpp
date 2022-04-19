@@ -138,7 +138,7 @@ bool UnselectCard(Card &card) {
 }
 
 
-int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen) {
+int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Path &currPath) {
     int ch;
 
     // highlight the first card of the board
@@ -207,7 +207,7 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos
 
                 if (!toToggle) {
                     currPos = initPos;
-                }
+                } else MovingSound();
 
                 ToggleCard(GetNode(board, initPos)->data);
                 ToggleCard(GetNode(board, currPos)->data);
@@ -251,7 +251,7 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos
                 if (!toToggle) {
                     currPos = initPos;
                     currNode = GetNode(board, currPos);
-                }
+                } else MovingSound();
 
                 ToggleCard(GetNode(board, initPos)->data);
                 ToggleCard(GetNode(board, currPos)->data);
@@ -288,7 +288,7 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos
 
                 if (!toToggle) {
                     currPos = initPos;
-                }
+                } else MovingSound();
 
                 ToggleCard(GetNode(board, initPos)->data);
                 ToggleCard(GetNode(board, currPos)->data);
@@ -325,7 +325,7 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos
 
                 if (!toToggle) {
                     currPos = initPos;
-                }
+                } else MovingSound();
 
                 ToggleCard(GetNode(board, initPos)->data);
                 ToggleCard(GetNode(board, currPos)->data);
@@ -350,28 +350,28 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos
             case '0':
                 return ST_SURRENDER;                
 
-            // case '9':
-            //     // clear selected state of all current cards
-            //     UnselectCard(GetNode(board, currPos)->data);
-            //     for (int i = 0; i < selectedCards; i++) {
-            //         UnselectCard(GetNode(board, selectedPos[i])->data);
-            //     }
-            //     if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
-            //         selectedPos[0] = path[0];
-            //         selectedPos[1] = path[pathLen - 1];
-            //         return ST_ASSISTED;
-            //     }
-            //     return ST_NOPAIRS;
+            case '9':
+                // clear selected state of all current cards
+                UnselectCard(GetNode(board, currPos)->data);
+                for (int i = 0; i < selectedCards; i++) {
+                    UnselectCard(GetNode(board, selectedPos[i])->data);
+                }
+                if (FindHint(board, boardHeight, boardWidth, currPath)) {
+                    selectedPos[0] = currPath.head->data;
+                    selectedPos[1] = currPath.tail->data;
+                    return ST_ASSISTED;
+                }
+                return ST_NOPAIRS;
 
-            // case '8': //endgame check
-            //     UnselectCard(GetNode(board, currPos)->data);
-            //     for (int i = 0; i < selectedCards; i++) {
-            //         UnselectCard(GetNode(board, selectedPos[i])->data);
-            //     }
-            //     if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
-            //         return ST_RESET;
-            //     }
-            //     return ST_NOPAIRS;
+            case '8': //endgame check
+                UnselectCard(GetNode(board, currPos)->data);
+                for (int i = 0; i < selectedCards; i++) {
+                    UnselectCard(GetNode(board, selectedPos[i])->data);
+                }
+                if (FindHint(board, boardHeight, boardWidth, currPath)) {
+                    return ST_RESET;
+                }
+                return ST_NOPAIRS;
 
             default:
                 break;

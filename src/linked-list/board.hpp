@@ -3,6 +3,7 @@
 #include "global.hpp"
 #include "display.hpp"
 #include "linked-list.hpp"
+#include "extra.hpp"
 #include <random>
 #include <string>
 
@@ -26,7 +27,7 @@ bool TogglePair(List *board, Pos *pair);
 #define ST_NOPAIRS 5
 #define ST_RESET 6
 
-int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen);
+int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Path &currPath);
 
 void RemovePair(List *board, Pos *pair);
 

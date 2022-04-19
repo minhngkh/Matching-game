@@ -5,7 +5,7 @@ using namespace std;
 bool test() {
     WINDOW *win;
 
-    PrintPrompt(win, "Remove? (0/1)", 1, LINES - 1);
+    PrintPrompt(win, "Remove? (0/1)", 1, LINES - 2);
 
     int ch;
 

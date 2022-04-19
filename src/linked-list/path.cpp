@@ -792,6 +792,19 @@ bool CheckPaths(Pos p1, Pos p2, List *board, int height, int width, Path &newPat
         return false;
 }
 
+void EmptyPath(Path &currPath) {
+    pointNode *currPNode = currPath.head;
+
+    while (currPNode) {
+        pointNode *temp = currPNode;
+        currPNode = currPNode->next;
+
+        delete temp;
+     }
+
+    currPath.head = currPath.tail = NULL;
+}
+
 void DrawCorner(Pos &point, int lastDr, int currDr) {
     attron(COLOR_PAIR(2));
 
@@ -868,15 +881,14 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
     pointNode *currPNode = currPath.head;
 
     // so that count start from 0
-    int count = -1;
+    int count = 0;
 
     while (currPNode) {
-        ++count;
-        
+        if (currPNode != currPath.head) lastPoint = currPoint;
+
         int y = currPNode->data.y;
         int x = currPNode->data.x;
         
-        if (currPNode != currPath.head) lastPoint = currPoint;
 
         if (currPNode->data.y == -1) {
             currPoint.y = - 1 - CARD_SPACE / 2 - CARD_HEIGHT / 2;
@@ -901,11 +913,19 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
         currPoint.y += getbegy(GetNode(board, {y, x})->data.win.cover);
         currPoint.x += getbegx(GetNode(board, {y, x})->data.win.cover);
     
-        if (currPNode == currPath.head) continue;
+        if (currPNode == currPath.head) {
+            ++count;
+            currPNode = currPNode->next;
+
+            continue;
+        }
 
         // value return from checkpath by Hoang give dupliacate values in L case
         if (lastPoint.x == currPoint.x && lastPoint.y == currPoint.y) {
             ++offsetSadCase;
+            ++count;
+            currPNode = currPNode->next;
+
             continue;
         }
 
@@ -915,6 +935,9 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
         if (count > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
         // crucial to refresh, without it, random bugs may appear
         refresh();
+
+        ++count;
+        currPNode = currPNode->next;
     }
 }
 //Đủ 888 dòng

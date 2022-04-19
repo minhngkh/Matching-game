@@ -143,7 +143,7 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
 
     // Prompt before start
     WINDOW *promptWin;
-    PrintPrompt(promptWin, "Press any key to continue", 1, LINES - 1);
+    PrintPrompt(promptWin, "Press any key to continue", 1, LINES - 2);
 
     getch();
 
@@ -175,9 +175,10 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
             ToggleCard(board[selectedPos[0].y][selectedPos[0].x]);
             ToggleCard(board[selectedPos[1].y][selectedPos[1].x]);
 
-            
             // wait for user to recognize the pair
             getch();
+
+            CorrectSound();
 
             DrawPath(board, height, width, path, pathLen);
             refresh();
@@ -197,6 +198,8 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
         if (gameState == ST_RESET) continue;
 
         if (gameState == ST_NOPAIRS) {
+            ErrorSound();
+
             WINDOW *prompt;
             PrintPrompt(prompt, "No available pairs left. Press any key to end the game", 1, LINES - 2);
             

@@ -2,7 +2,6 @@
 #include "board.hpp"
 #include "display.hpp"
 #include "path.hpp"
-#include "stat.hpp"
 #include "test.hpp"
 
 #define MAIN_MENU_NUM 3
@@ -85,7 +84,7 @@ int main() {
             }
 
             case 1:
-                DisplayLeaderboard();
+                //DisplayLeaderboard();
                 break;
 
             case 2:

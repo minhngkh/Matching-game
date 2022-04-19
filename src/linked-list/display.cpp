@@ -131,7 +131,7 @@ void DisplayArt(WINDOW *&win, string art) {
     wrefresh(win);
 }
 
-int PlayGame(int height, int width, int mode) {
+int PlayGame(int height, int width, int mode, int &timeFinished) {
     // Generate board
     List *board;
     GenerateBoard(board, height, width);
@@ -143,13 +143,15 @@ int PlayGame(int height, int width, int mode) {
 
     // Prompt before start
     WINDOW *promptWin;
-    PrintPrompt(promptWin, "Press any key to continue", 1, LINES - 1);
+    PrintPrompt(promptWin, "Press any key to continue", 1, LINES - 2);
 
     getch();
 
     RemoveWin(promptWin);
 
     // Play
+    Time startTime = GetCurrTime();
+    
     int pairsRemoved = 0;
     int totalPairs = height * width / 2;
 
@@ -164,22 +166,25 @@ int PlayGame(int height, int width, int mode) {
         PrintPrompt(instructWin, "8: endgame check  9: Help  0: Surrender", 1, 1);
 
         Pos *selectedPos = new Pos[2];
-        Pos *path;
-        int pathLen;
+        Path path;
 
-        int gameState = GetInput(board, height, width, selectedPos, path, pathLen);
+        int gameState = GetInput(board, height, width, selectedPos, path);
 
         if (gameState == ST_ASSISTED) {
             ToggleCard(GetNode(board, selectedPos[0])->data);
-            ToggleCard(GetNode(board, selectedPos[0])->data);
+            ToggleCard(GetNode(board, selectedPos[1])->data);
             
             // wait for user to recognize the pair
             getch();
 
-            //DrawPath(board, height, width, path, pathLen);
+            CorrectSound();
+
+            DrawPath(board, height, width, path);
             refresh();
+
             // delay 150 ms
             napms(150);
+
             // remove any character pressed when the delay happens
             flushinp();
 
@@ -194,6 +199,8 @@ int PlayGame(int height, int width, int mode) {
         if (gameState == ST_RESET) continue;
 
         if (gameState == ST_NOPAIRS) {
+            ErrorSound();
+
             WINDOW *prompt;
             PrintPrompt(prompt, "No available pairs left. Press any key to end the game", 1, LINES - 2);
             
@@ -213,9 +220,11 @@ int PlayGame(int height, int width, int mode) {
             return gameState;
         }
 
-        //if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width, path, pathLen)) {
-        if (test()) {
-            // DrawPath(board, height, width, path, pathLen);
+        if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width, path)) {
+        //if (test()) {
+            CorrectSound();
+            
+            DrawPath(board, height, width, path);
             refresh();
             // delay 150 ms
             napms(150);
@@ -228,6 +237,8 @@ int PlayGame(int height, int width, int mode) {
 
             ++pairsRemoved;
         } else {
+            ErrorSound();
+            
             TogglePair(board, selectedPos);
         }
     }
@@ -235,25 +246,36 @@ int PlayGame(int height, int width, int mode) {
     clear();
     RemoveWin(background);
     refresh();
+
+    timeFinished = ElapsedTime(GetCurrTime(), startTime);
     
     return ST_FINISHED;
 }
 
-void DisplayEndScreen(int mode) {
+void DisplayEndScreen(int mode, int time) {
     WINDOW *prompt;
+
     if (mode == ST_SURRENDER) {
+        LoseSound();
         DisplayArt(prompt, LOSE_PROMPT);
         getch();
+
         return;
     } 
+    
     // win
+    WinSound();
     DisplayArt(prompt, WIN_PROMPT);
+
+    WINDOW *timeWin;
+    string timePrompt = "Finished in " + to_string(time) + " sec(s)";
+    PrintPrompt(timeWin, timePrompt.c_str(), 1, LINES - 4);
 
     WINDOW *inputWin;
 
     const int SPACE_INPUT = 10;
     string out = "Enter your name:";
-    char in[20];
+    char name[20];
     
     int startX = (COLS - out.length() - SPACE_INPUT) / 2;
     PrintPrompt(inputWin, out, 1, LINES - 2, startX);
@@ -263,13 +285,14 @@ void DisplayEndScreen(int mode) {
     wrefresh(inputWin);
     curs_set(1);
 
-    mvwgetstr(inputWin, 0, startX + out.length() + 1, in);
+    mvwgetstr(inputWin, 0, startX + out.length() + 1, name);
     
     noecho();
     raw();
     curs_set(0);
 
     RemoveWin(inputWin);
+    RemoveWin(timeWin);
 
-    
+    UpdateLeaderboard({name, time});
 }

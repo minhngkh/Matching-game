@@ -5,6 +5,7 @@
 #include "path.hpp"
 #include "curses.h"
 #include "test.hpp"
+#include "extra.hpp"
 #include <string>
 #include <fstream>
 
@@ -28,6 +29,6 @@ void DisplayArt(WINDOW *&win, std::string art);
 #define MODE_NORMAL 0
 #define MODE_DIFFICULT 1
 
-int PlayGame(int height, int width, int mode);
+int PlayGame(int height, int width, int mode, int &timeFinished);
 
-void DisplayEndScreen(int mode);
+void DisplayEndScreen(int mode, int time = -1);
