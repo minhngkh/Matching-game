@@ -16,7 +16,7 @@ Lưu ý:  - Windows bị bủg không dám chạy biên dịch nên nhờ Minh b
 điểm đã chọn
 
 */
-bool CheckLineX(int x1, int x2, Card **board, int y) {
+bool CheckLineX(int x1, int x2, List **board, int y) {
     int max = x1, min = x2;
     if (x1 < x2) {
         max = x2;
@@ -24,12 +24,12 @@ bool CheckLineX(int x1, int x2, Card **board, int y) {
     }
 
     for (int x = min; x <= max; x++)
-        if (board[y][x].status == STATUS_NONE) return false;
+        if (GetNode() == STATUS_NONE) return false;
 
     return true;
 }
 
-bool CheckLineY(int y1, int y2, Card **board, int x) {
+bool CheckLineY(int y1, int y2, List **board, int x) {
     // Tìm max giữa y1 và y2
     int max = y1, min = y2;
     if (y1 < y2) {
