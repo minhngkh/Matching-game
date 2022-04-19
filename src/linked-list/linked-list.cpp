@@ -5,11 +5,23 @@ bool IsEmpty(List &currList) {
     return false;
 }
 
+bool IsEmpty(Path &currPath) {
+    if (currPath.head == NULL && currPath.tail == NULL) return true;
+    return false;
+}
+
 Node *CreateNode(Card newData) {
     Node *newNode = new Node;
     newNode->data = newData;
     
     return newNode;
+}
+
+pointNode *CreateNode(Pos newData) {
+    pointNode *newPNode = new pointNode;
+    newPNode->data = newData;
+    
+    return newPNode;
 }
 
 int GetLength(List &currList) {
@@ -73,6 +85,18 @@ void Append(List &currList , Card newData) {
 
     currList.tail->next = newNode;
     currList.tail = newNode;
+}
+
+void Append(Path &currPath, Pos newData) {
+    pointNode *newPNode = CreateNode(newData);
+
+    if (IsEmpty(currPath)) {
+        currPath.tail = currPath.head = newPNode;
+        return ;
+    }
+
+    currPath.tail->next = newPNode;
+    currPath.tail = newPNode;
 }
 
 // remove the last node
