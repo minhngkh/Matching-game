@@ -4,15 +4,17 @@
 		{
 			"type": "cppbuild",
 			"label": "C/C++: g++ build folder",
-			"command": "/usr/bin/g++",
+			"command": "C:/msys64/mingw64/bin/g++.exe",
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"-Wall",
-				"src/*.cpp",
-				"-lncurses",
 				"-o",
-				"bin/debug/debug"
+				"test.exe",
+				"src/linked-list/*.cpp",
+				"-Iinclude",
+				"-Llib",
+				"-lpdcurses",
+				"-lWinmm"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
@@ -24,7 +26,7 @@
 				"kind": "build",
 				"isDefault": true
 			},
-			"detail": "compiler: /usr/bin/g++"
+			"detail": "compiler: g++"
 		}
 	]
 }

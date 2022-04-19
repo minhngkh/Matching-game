@@ -12,20 +12,9 @@ bin/
 *.gch
 *.pch
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
 # Fortran module files
 *.mod
 *.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
 
 # Executables
 *.exe
@@ -38,9 +27,6 @@ bin/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/*.code-snippets
-
-#ignore lib
-include/*
 
 #ignore test
 test/
