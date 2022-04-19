@@ -2,13 +2,10 @@
 
 using namespace std;
 
-bool GenerateBoard(Card **&board, int height, int width) {
+bool GenerateBoard(List *&board, int height, int width) {
     int totalCards = height * width;
     // Create board
-    board = new Card*[width];
-    for (int i = 0; i < height; i++) {
-        board[i] = new Card [width];
-    }
+    board = new List[height];
 
     // Initialize random device and random generator
     random_device dev;
@@ -27,8 +24,10 @@ bool GenerateBoard(Card **&board, int height, int width) {
 
         beginChar = offsetDist(gen);
 
-        board[i / width][i % width].val = beginChar;
-        board[(i + 1) / width][(i + 1) % width].val = beginChar;
+        Card newCard;
+        newCard.val = beginChar;
+        Append(board[i / width], newCard);
+        Append(board[(i + 1) / width], newCard);
 
         ++beginChar; // no offset is included twice
         --charsLeft;
@@ -40,7 +39,10 @@ bool GenerateBoard(Card **&board, int height, int width) {
 
     for (int i = 0; i < height; i += 2) {
         for (int j = 0; j < width; j += 2) {
-            swap(board[i][j], board[heightDist(gen)][widthDist(gen)]);
+            Node *tempNode1 = GetNode(board, {i, j});
+            Node *tempNode2 = GetNode(board, {heightDist(gen), widthDist(gen)});
+
+            swap(tempNode1->data.val, tempNode2->data.val);
         }
     }
 
@@ -59,7 +61,7 @@ void DisplayCard(Card card) {
     touchwin(card.win.cover);
 }
 
-void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
+void DisplayBoard(List *board, int boardHeight, int boardWidth) {
     // int boardHeight = sizeof(board) / sizeof(*board);
     // int boardWidth = sizeof(*board) / sizeof(**board);
     int winHeight = boardHeight * CARD_HEIGHT + (boardHeight - 1) * CARD_SPACE / 2;
@@ -73,11 +75,18 @@ void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
     for (int i = 0; i < boardHeight; i++) {
         boardPos.x = initX;
 
-        for (int j = 0; j < boardWidth; j++) {
-            board[i][j].win.cover = newwin(CARD_HEIGHT, CARD_WIDTH, boardPos.y, boardPos.x);
-            board[i][j].win.core = derwin(board[i][j].win.cover, CARD_HEIGHT - 2, CARD_WIDTH - 2, 1, 1);
+        Node *currNode = GetNode(board, {i, 0});
 
-            DisplayCard(board[i][j]);
+        while (currNode) {
+            Card &currCard = currNode->data;
+
+            currCard.win.cover = newwin(CARD_HEIGHT, CARD_WIDTH, boardPos.y, boardPos.x);
+            currCard.win.core = derwin(currCard.win.cover, CARD_HEIGHT - 2, CARD_WIDTH - 2, 1, 1);
+
+            DisplayCard(currCard);
+
+            currNode = currNode->next;
+
             boardPos.x += CARD_WIDTH + CARD_SPACE;
         }
         // Because char's height is about double the width
@@ -85,13 +94,19 @@ void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
     }
 }
 
-void RefreshBoard(Card **board, int boardHeight, int boardWidth) {
+void RefreshBoard(List *board, int boardHeight) {
     for (int i = 0; i < boardHeight; i++) {
-        for (int j = 0; j < boardWidth; j++) {
-            if (board[i][j].status == STATUS_REMOVED) continue;
-            touchwin(board[i][j].win.cover);
-            wrefresh(board[i][j].win.core);
-            wrefresh(board[i][j].win.cover);
+        Node *currNode = GetNode(board, {i, 0});
+
+        while (currNode) {
+            Card &currCard = currNode->data;
+            currNode = currNode->next;
+
+            if (currCard.status == STATUS_REMOVED) continue;
+            touchwin(currCard.win.cover);
+            wrefresh(currCard.win.core);
+            wrefresh(currCard.win.cover);
+
         }
     }
 }
@@ -123,7 +138,7 @@ bool UnselectCard(Card &card) {
 }
 
 
-int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen) {
+int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen) {
     int ch;
 
     // highlight the first card of the board
@@ -131,16 +146,23 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
     
     bool beenFound = false;
     for (int i = 0; i < boardHeight; i++) {
+        Node *currNode = GetNode(board, {i, 0});
+
         if (beenFound) break;  
         for (int j = 0; j < boardWidth; j++) {
-            if (board[i][j].status != STATUS_REMOVED) {
+            Card &currCard = currNode->data;
+
+            if (currCard.status != STATUS_REMOVED) {
                 currPos = {i, j};
-                ToggleCard(board[i][j]);
+                ToggleCard(currCard);
                 beenFound = true;
                 break;
             }
+
+            currNode = currNode->next;
         }
     }
+
     int selectedCards = 0;
 
     while (selectedCards < 2) {
@@ -171,10 +193,10 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                     // loop until an available card is found in row
                     while (currPos.x != 0) {
                         --currPos.x;
-                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
+                        if (GetNode(board, currPos)->data.status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.x == 0) {
+                    if (GetNode(board, currPos)->data.status == STATUS_REMOVED && currPos.x == 0) {
                         // card not found in row so reset
                         currPos.x = initPos.x;
                     } else {
@@ -187,8 +209,8 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                     currPos = initPos;
                 }
 
-                ToggleCard(board[initPos.y][initPos.x]);
-                ToggleCard(board[currPos.y][currPos.x]);
+                ToggleCard(GetNode(board, initPos)->data);
+                ToggleCard(GetNode(board, currPos)->data);
 
                 break;
 
@@ -198,7 +220,8 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                 if (currPos.x == boardWidth - 1) break;
 
                 limit = max(boardHeight - 1 - currPos.y, currPos.y) * 2 + 1;
-
+                
+                Node *currNode;
                 for (int i = 1; i < limit + 1; i++) {
                     int offset = pow(-1, i) * (i / 2);
                     int tempPos = initPos.y + offset;
@@ -207,13 +230,18 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                     currPos.y = tempPos;
 
+                    // Only situation that this can be optimized because we access card in the list direction
+                    Node *currNode = GetNode(board, currPos);
+
                     while (currPos.x != boardWidth - 1) {
                         ++currPos.x;
-                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
+                        currNode = currNode->next;
+                        if (currNode->data.status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.x == boardWidth - 1) {
+                    if (GetNode(board, currPos)->data.status == STATUS_REMOVED && currPos.x == boardWidth - 1) {
                         currPos.x = initPos.x;
+                        currNode = GetNode(board, currPos);
                     } else {
                         toToggle = true;
                         break;
@@ -222,10 +250,11 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                 if (!toToggle) {
                     currPos = initPos;
+                    currNode = GetNode(board, currPos);
                 }
 
-                ToggleCard(board[initPos.y][initPos.x]);
-                ToggleCard(board[currPos.y][currPos.x]);
+                ToggleCard(GetNode(board, initPos)->data);
+                ToggleCard(GetNode(board, currPos)->data);
 
                 break;
 
@@ -246,10 +275,10 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                     while (currPos.y != 0) {
                         --currPos.y;
-                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
+                        if (GetNode(board, currPos)->data.status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.y == 0) {
+                    if (GetNode(board, currPos)->data.status == STATUS_REMOVED && currPos.y == 0) {
                         currPos.y = initPos.y;
                     } else {
                         toToggle = true;
@@ -261,8 +290,8 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                     currPos = initPos;
                 }
 
-                ToggleCard(board[initPos.y][initPos.x]);
-                ToggleCard(board[currPos.y][currPos.x]);
+                ToggleCard(GetNode(board, initPos)->data);
+                ToggleCard(GetNode(board, currPos)->data);
 
                 break;
 
@@ -283,10 +312,10 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                     while (currPos.y != boardHeight - 1) {
                         ++currPos.y;
-                        if (board[currPos.y][currPos.x].status != STATUS_REMOVED) break;
+                        if (GetNode(board, currPos)->data.status != STATUS_REMOVED) break;
                     }
 
-                    if (board[currPos.y][currPos.x].status == STATUS_REMOVED && currPos.y == boardHeight - 1) {
+                    if (GetNode(board, currPos)->data.status == STATUS_REMOVED && currPos.y == boardHeight - 1) {
                         currPos.y = initPos.y;
                     } else {
                         toToggle = true;
@@ -298,17 +327,17 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                     currPos = initPos;
                 }
 
-                ToggleCard(board[initPos.y][initPos.x]);
-                ToggleCard(board[currPos.y][currPos.x]);
+                ToggleCard(GetNode(board, initPos)->data);
+                ToggleCard(GetNode(board, currPos)->data);
 
                 break;
 
             case '\r':
             case '\n':
             case KEY_ENTER:
-                if (board[currPos.y][currPos.x].status == STATUS_SELECTED) break;
+                if (GetNode(board, currPos)->data.status == STATUS_SELECTED) break;
 
-                board[currPos.y][currPos.x].status = STATUS_SELECTED;
+                GetNode(board, currPos)->data.status = STATUS_SELECTED;
 
                 selectedPos[selectedCards] = currPos;
                 ++selectedCards;
@@ -321,28 +350,29 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
             case '0':
                 return ST_SURRENDER;                
 
-            case '9':
-                // clear selected state of all current cards
-                UnselectCard(board[currPos.y][currPos.x]);
-                for (int i = 0; i < selectedCards; i++) {
-                    UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
-                }
-                if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
-                    selectedPos[0] = path[0];
-                    selectedPos[1] = path[pathLen - 1];
-                    return ST_ASSISTED;
-                }
-                return ST_NOPAIRS;
+            // case '9':
+            //     // clear selected state of all current cards
+            //     UnselectCard(GetNode(board, currPos)->data);
+            //     for (int i = 0; i < selectedCards; i++) {
+            //         UnselectCard(GetNode(board, selectedPos[i])->data);
+            //     }
+            //     if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
+            //         selectedPos[0] = path[0];
+            //         selectedPos[1] = path[pathLen - 1];
+            //         return ST_ASSISTED;
+            //     }
+            //     return ST_NOPAIRS;
 
-            case '8': //endgame check
-                UnselectCard(board[currPos.y][currPos.x]);
-                for (int i = 0; i < selectedCards; i++) {
-                    UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
-                }
-                if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
-                    return ST_RESET;
-                }
-                return ST_NOPAIRS;
+            // case '8': //endgame check
+            //     UnselectCard(GetNode(board, currPos)->data);
+            //     for (int i = 0; i < selectedCards; i++) {
+            //         UnselectCard(GetNode(board, selectedPos[i])->data);
+            //     }
+            //     if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
+            //         return ST_RESET;
+            //     }
+            //     return ST_NOPAIRS;
+
             default:
                 break;
         }
@@ -351,49 +381,46 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
     return ST_NORMAL;
 }
 
-bool TogglePair(Card **board, Pos *pair) {
+bool TogglePair(List *board, Pos *pair) {
     for (int i = 0; i < 2; i++) {
-        if (!UnselectCard(board[pair[i].y][pair[i].x])) return false;
+        if (!UnselectCard(GetNode(board, pair[i])->data)) return false;
     }
 
     return true;
 }
 
-void RemovePair(Card **board, Pos *pair) {
+void RemovePair(List *board, Pos *pair) {
     for (int i = 0; i < 2; i++) {
-        Card &currentCard = board[pair[i].y][pair[i].x];
+        Card &currentCard = GetNode(board, pair[i])->data;
         EmptyWin(currentCard.win.cover);
         currentCard.status = STATUS_REMOVED;
     }
 }
 
 // slide from right to left
-void SlideBoard(Card **board, int boardWidth, Pos removedPos) {
-    int y = removedPos.y;
-    int x = removedPos.x + 1;
+void SlideBoard(List *board, Pos removedPos) {
+    Node *currNode = GetNode(board, removedPos);
 
-    if (x == (boardWidth) || board[y][x].status == STATUS_REMOVED) return;
+    while (currNode->next && currNode->next->data.status != STATUS_REMOVED) {
+        currNode->data.val = currNode->next->data.val;
+        currNode->data.status = currNode->next->data.status;
+        
+        DisplayCard(currNode->data);
 
-    while (x < boardWidth && board[y][x].status != STATUS_REMOVED) {
-        board[y][x - 1].val = board[y][x].val;
-        board[y][x - 1].status = board[y][x].status;
-
-        DisplayCard(board[y][x - 1]);
-
-        ++x;
+        currNode = currNode->next;
     }
 
-    board[y][x - 1].status = STATUS_REMOVED;
-    EmptyWin(board[y][x - 1].win.cover);
+    currNode->data.status = STATUS_REMOVED;
+    EmptyWin(currNode->data.win.cover);
 }
  
-void SlideBoard(Card **board, int boardWidth, Pos *removedPos) {
+void SlideBoard(List *board, Pos *removedPos) {
     Pos posL = removedPos[0];
     Pos posR = removedPos[1];
 
     if (posL.x > posR.x) swap(posL, posR);
 
     // slide card on the right first because SlideBoard func only works with row having 1 removed card
-    SlideBoard(board, boardWidth, posR);
-    SlideBoard(board, boardWidth, posL);
+    SlideBoard(board, posR);
+    SlideBoard(board, posL);
 }
