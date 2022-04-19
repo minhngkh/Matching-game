@@ -208,7 +208,7 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                 if (!toToggle) {
                     currPos = initPos;
-                }
+                } else MovingSound();
 
                 ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);
@@ -245,7 +245,7 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                 if (!toToggle) {
                     currPos = initPos;
-                }
+                } else MovingSound();
 
                 ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);
@@ -282,7 +282,7 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                 if (!toToggle) {
                     currPos = initPos;
-                }
+                } else MovingSound();
 
                 ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);
@@ -319,7 +319,7 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
 
                 if (!toToggle) {
                     currPos = initPos;
-                }
+                } else MovingSound();
 
                 ToggleCard(board[initPos.y][initPos.x]);
                 ToggleCard(board[currPos.y][currPos.x]);

@@ -65,7 +65,8 @@ int main() {
                             break;
                     }
 
-                    switch(PlayGame(height, width, mode)) {
+                    int timeFinished;
+                    switch(PlayGame(height, width, mode, timeFinished)) {
                         case ST_FORCE_OUT:
                             isRunning = false;
                             break;
@@ -73,7 +74,7 @@ int main() {
                             DisplayEndScreen(ST_SURRENDER);
                             break;
                         case ST_FINISHED:
-                            DisplayEndScreen(ST_FINISHED);
+                            DisplayEndScreen(ST_FINISHED, timeFinished);
                             break;
                         default:
                             break;
