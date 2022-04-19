@@ -13,4 +13,4 @@ bool FindHint(List *board, int height, int width, Path &newPath);
 #define DR_LEFT 2
 #define DR_RIGHT -2
 
-void DrawPath(List *board, int boardHeight, int boardWidth, Path newPath);
+void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath);

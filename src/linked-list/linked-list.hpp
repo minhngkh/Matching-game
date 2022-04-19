@@ -26,6 +26,7 @@ Node *CreateNode(Card newData);
 pointNode *CreatePNode(Pos newData);
 
 int GetLength(List &currList);
+pointNode *GetNode(Path currPath, int pos);
 
 Node *GetNode(List currList, int pos);
 

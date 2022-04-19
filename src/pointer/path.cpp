@@ -835,7 +835,6 @@ void DrawLine(Pos point1, Pos point2, int &direction) {
 }
 
 void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen) {
-    Pos *points = new Pos[pathLen];
     Pos lastPoint, currPoint;
     int lastDr, currDr;
     int offsetSadCase = 0;

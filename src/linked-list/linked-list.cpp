@@ -50,6 +50,20 @@ Node *GetNode(List currList, int pos) {
     return currNode;
 }
 
+pointNode *GetNode(Path currPath, int pos) {
+    pointNode *currPNode = currPath.head;
+
+    if (pos < 0) return NULL;
+    if (pos == 0) return currPath.head;
+
+    for (int i = 1; i < pos + 1; i++) {
+        if (!currPNode->next) return NULL;
+        currPNode = currPNode->next;
+    }
+
+    return currPNode;
+}
+
 Node *GetNode(List *board, Pos currPos) {
     return GetNode(board[currPos.y], currPos.x);
 }
