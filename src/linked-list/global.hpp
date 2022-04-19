@@ -2,10 +2,9 @@
 
 #include "curses.h"
 
-#define STATUS_NONE 0
-#define STATUS_HIGHLIGHTED 1
-#define STATUS_SELECTED 2
-#define STATUS_REMOVED 3
+#define CARD_WIDTH 5
+#define CARD_HEIGHT 3
+#define CARD_SPACE 1
 
 struct Box {
     WINDOW *cover;
@@ -14,6 +13,11 @@ struct Box {
 struct Pos {
     int y, x;
 };
+
+#define STATUS_NONE 0
+#define STATUS_HIGHLIGHTED 1
+#define STATUS_SELECTED 2
+#define STATUS_REMOVED 3
 
 struct Card {
     char val;

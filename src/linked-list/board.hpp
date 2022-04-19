@@ -2,20 +2,21 @@
 
 #include "global.hpp"
 #include "display.hpp"
+#include "linked-list.hpp"
 #include <random>
 #include <string>
 
-bool GenerateBoard(Card **&board, int height, int width);
+bool GenerateBoard(List *&board, int height, int width);
 
 void DisplayCard(Card card);
 
-void DisplayBoard(Card **board, int boardHeight, int boardWidth);
+void DisplayBoard(List *board, int boardHeight, int boardWidth);
 
-void RefreshBoard(Card **board, int boardHeight, int boardWidth);
+void RefreshBoard(List *board, int boardHeight);
 
 bool ToggleCard(Card &card);
 
-bool TogglePair(Card **board, Pos *pair);
+bool TogglePair(List *board, Pos *pair);
 
 #define ST_NORMAL 0
 #define ST_FORCE_OUT 1
@@ -25,10 +26,10 @@ bool TogglePair(Card **board, Pos *pair);
 #define ST_NOPAIRS 5
 #define ST_RESET 6
 
-int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen);
+int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pos *&path, int &pathLen);
 
-void RemovePair(Card **board, Pos* pair);
+void RemovePair(List *board, Pos *pair);
 
-void SlideBoard(Card **board, int boardWidth, Pos removedPos);
+void SlideBoard(List *board, Pos removedPos);
 
-void SlideBoard(Card **board, int boardWidth, Pos *removedPos);
+void SlideBoard(List *board, Pos *removedPos);
