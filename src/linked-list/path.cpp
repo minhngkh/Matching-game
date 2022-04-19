@@ -834,42 +834,49 @@ void DrawLine(Pos point1, Pos point2, int &direction) {
     attroff(COLOR_PAIR(2));
 }
 
-void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen) {
-    Pos *points = new Pos[pathLen];
+void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
     Pos lastPoint, currPoint;
     int lastDr, currDr;
     int offsetSadCase = 0;
 
-    for (int i = 0; i < pathLen; i++) {
-        int y = path[i].y;
-        int x = path[i].x;
-        
-        if (i != 0) lastPoint = currPoint;
+    // get first point of the path
+    pointNode *currPNode = currPath.head;
 
-        if (path[i].y == -1) {
+    // so that count start from 0
+    int count = -1;
+
+    while (currPNode) {
+        ++count;
+        
+        int y = currPNode->data.y;
+        int x = currPNode->data.x;
+        
+        if (currPNode != currPath.head) lastPoint = currPoint;
+
+        if (currPNode->data.y == -1) {
             currPoint.y = - 1 - CARD_SPACE / 2 - CARD_HEIGHT / 2;
             ++y;
-        } else if (path[i].y == boardHeight) {
+        } else if (currPNode->data.y == boardHeight) {
             currPoint.y = CARD_HEIGHT + CARD_HEIGHT / 2;
             --y;
         } else {
             currPoint.y = CARD_HEIGHT / 2;
         }
 
-        if (path[i].x == -1) {
+        if (currPNode->data.x == -1) {
             currPoint.x = - 1 - CARD_SPACE - CARD_WIDTH / 2;
             ++x;
-        } else if (path[i].x == boardWidth) {
+        } else if (currPNode->data.x == boardWidth) {
             currPoint.x = CARD_WIDTH + CARD_WIDTH / 2;
             --x;
         } else {
             currPoint.x = CARD_WIDTH / 2;
         }
 
-        currPoint.y += getbegy(board[y][x].win.cover);
-        currPoint.x += getbegx(board[y][x].win.cover);
+        currPoint.y += getbegy(GetNode(board, {y, x})->data.win.cover);
+        currPoint.x += getbegx(GetNode(board, {y, x})->data.win.cover);
     
-        if (i == 0) continue;
+        if (currPNode == currPath.head) continue;
 
         // value return from checkpath by Hoang give dupliacate values in L case
         if (lastPoint.x == currPoint.x && lastPoint.y == currPoint.y) {
@@ -880,7 +887,7 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
         lastDr = currDr;
         DrawLine(lastPoint, currPoint, currDr);
 
-        if (i > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
+        if (count > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
         // crucial to refresh, without it, random bugs may appear
         refresh();
     }

@@ -1,4 +1,4 @@
-#include "global.hpp"
+ #include "global.hpp"
 #include "board.hpp"
 #include "display.hpp"
 #include "path.hpp"
