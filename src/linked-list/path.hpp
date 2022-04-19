@@ -2,14 +2,15 @@
 
 #include "global.hpp"
 #include "curses.h"
+#include "linked-list.hpp"
 #include "string"
 
-bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path, int &pathLen);
-bool FindHint(Card **board, int height, int width, Pos* &path, int &pathLen);
+bool CheckPaths(Pos p1, Pos p2, List *board, int height, int width, List &path);
+bool FindHint(List *board, int height, int width, List &path);
 
 #define DR_UP 1
 #define DR_DOWN -1
 #define DR_LEFT 2
 #define DR_RIGHT -2
 
-void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pathLen);
+void DrawPath(List *board, int boardHeight, int boardWidth, List path);
