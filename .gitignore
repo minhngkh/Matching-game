@@ -30,3 +30,4 @@ bin/
 
 #ignore test
 test/
+data/

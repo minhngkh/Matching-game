@@ -176,7 +176,10 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
             ToggleCard(board[selectedPos[1].y][selectedPos[1].x]);
 
             // wait for user to recognize the pair
-            getch();
+            while (true) {
+                char ch = getch();
+                if (ch == '\r' || ch == '\n' || ch == KEY_ENTER) break;
+            }
 
             CorrectSound();
 
@@ -195,13 +198,19 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
             continue;
         }
 
-        if (gameState == ST_RESET) continue;
+        if (gameState == ST_RESET) {
+            WINDOW *prompt;
+            PrintPrompt(prompt, "Valid pair(s) existed. Press any key to continue", 1, LINES - 2);
+            getch();
+            RemoveWin(prompt);
+            continue;
+        }
 
         if (gameState == ST_NOPAIRS) {
             ErrorSound();
 
             WINDOW *prompt;
-            PrintPrompt(prompt, "No available pairs left. Press any key to end the game", 1, LINES - 2);
+            PrintPrompt(prompt, "No valid pair left. Press any key to end the game", 1, LINES - 2);
             
             getch();
             clear();

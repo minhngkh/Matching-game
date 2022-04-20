@@ -37,8 +37,8 @@ bool GenerateBoard(List *&board, int height, int width) {
     uniform_int_distribution<int> heightDist(0, height - 1);
     uniform_int_distribution<int> widthDist(0, width - 1);
 
-    for (int i = 0; i < height; i += 2) {
-        for (int j = 0; j < width; j += 2) {
+    for (int i = 0; i < height; i += 1 + NON_RANDOMNESS) {
+        for (int j = 0; j < width; j += 1 + NON_RANDOMNESS) {
             Node *tempNode1 = GetNode(board, {i, j});
             Node *tempNode2 = GetNode(board, {heightDist(gen), widthDist(gen)});
 
