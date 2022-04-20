@@ -7,6 +7,9 @@
 #include <random>
 #include <string>
 
+// min = 0, the higher num the less random the board is
+#define NON_RANDOMNESS 1
+
 bool GenerateBoard(List *&board, int height, int width);
 
 void DisplayCard(Card card);

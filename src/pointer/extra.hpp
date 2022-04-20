@@ -8,7 +8,7 @@
 #include <chrono>
 
 struct Stat{
-    std::string name;
+    char name[10];
     int time;
 };
 
@@ -18,10 +18,12 @@ void CorrectSound();
 void ErrorSound();
 void MovingSound();
 
+#define ORG_PATH "data/leaderboard"
+
 void Swap(Stat &x, Stat &y);
 void SortAscendingOrder(Stat *a, int n);
-void UpdateLeaderboard(Stat player);
-Stat *ReadLeaderboard();
+void UpdateLeaderboard(Stat player, int height, int width);
+Stat *ReadLeaderboard(int height, int width, int &size);
 
 typedef std::chrono::_V2::system_clock::time_point Time;
 

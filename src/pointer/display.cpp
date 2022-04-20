@@ -176,7 +176,10 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
             ToggleCard(board[selectedPos[1].y][selectedPos[1].x]);
 
             // wait for user to recognize the pair
-            getch();
+            while (true) {
+                char ch = getch();
+                if (ch == '\r' || ch == '\n' || ch == KEY_ENTER) break;
+            }
 
             CorrectSound();
 
@@ -195,13 +198,19 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
             continue;
         }
 
-        if (gameState == ST_RESET) continue;
+        if (gameState == ST_RESET) {
+            WINDOW *prompt;
+            PrintPrompt(prompt, "Valid pair(s) existed. Press any key to continue", 1, LINES - 2);
+            getch();
+            RemoveWin(prompt);
+            continue;
+        }
 
         if (gameState == ST_NOPAIRS) {
             ErrorSound();
 
             WINDOW *prompt;
-            PrintPrompt(prompt, "No available pairs left. Press any key to end the game", 1, LINES - 2);
+            PrintPrompt(prompt, "No valid pair left. Press any key to end the game", 1, LINES - 2);
             
             getch();
             clear();
@@ -251,7 +260,7 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
     return ST_FINISHED;
 }
 
-void DisplayEndScreen(int mode, int time) {
+void DisplayEndScreen(int mode, int height, int width, int time) {
     WINDOW *prompt;
 
     if (mode == ST_SURRENDER) {
@@ -274,7 +283,7 @@ void DisplayEndScreen(int mode, int time) {
 
     const int SPACE_INPUT = 10;
     string out = "Enter your name:";
-    char name[20];
+    char name[10];
     
     int startX = (COLS - out.length() - SPACE_INPUT) / 2;
     PrintPrompt(inputWin, out, 1, LINES - 2, startX);
@@ -293,5 +302,56 @@ void DisplayEndScreen(int mode, int time) {
     RemoveWin(inputWin);
     RemoveWin(timeWin);
 
-    UpdateLeaderboard({name, time});
+    Stat data;
+    strcpy(data.name, name);
+    data.time = time;
+    UpdateLeaderboard(data, height, width);
+}
+
+void DisplayLeaderboard(int height, int width) {
+    clear();
+    refresh();
+
+    int size;
+    Stat *leaderboard = ReadLeaderboard(height, width, size);
+
+    string header[3] = {"No.", "Name", "Time"};
+    int space[3] = {3, 10, 4};
+    const int spacing = 2;
+
+    int startX = (COLS - space[0] - space[1] - space[2] - spacing * 2) / 2;
+    int startY = (LINES - NUM_LEADERBOARD * 2 - 1) / 2;
+
+    WINDOW *win[3];
+    for (int i = 0; i < 3; i++) {
+        win[i] = newwin(NUM_LEADERBOARD * 2 + 1, space[i], startY, startX);
+        mvwaddstr(win[i], 0, 0, header[i].c_str());
+
+        wrefresh(win[i]);
+
+        startX += space[i] + spacing;
+    }
+
+    for (int i = 0; i < NUM_LEADERBOARD && i < size; i++) {
+        PrintInMiddle(win[0], to_string(i + 1).c_str(), i * 2 + 2);
+        wrefresh(win[0]);
+
+        mvwaddstr(win[1], i * 2 + 2, 0, leaderboard[i].name);
+        wrefresh(win[1]);
+
+        PrintInMiddle(win[2], to_string(leaderboard[i].time) + "s", i * 2 + 2);
+        wrefresh(win[2]);
+    }
+
+    WINDOW *promptWin;
+    PrintPrompt(promptWin, "Press any key to back to main menu", 1, LINES - 2);
+
+    getch();
+
+    delwin(promptWin);
+
+    for (int i = 0; i < 3; i++) delwin(win[i]);
+
+    clear();
+    refresh();
 }
