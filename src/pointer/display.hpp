@@ -6,6 +6,7 @@
 #include "curses.h"
 #include "test.hpp"
 #include "extra.hpp"
+
 #include <string>
 #include <fstream>
 
@@ -14,7 +15,7 @@
 
 int ChooseMenu(std::string *menu, int options);
 
-void PrintInMiddle(WINDOW *win, std::string str);
+void PrintInMiddle(WINDOW *win, std::string str, int y);
 void PrintPrompt(WINDOW *&win, std::string prompt, int lines = 1, int y = LINES / 2, int x = -1);
 
 void EmptyWin(WINDOW *win);
@@ -31,4 +32,8 @@ void DisplayArt(WINDOW *&win, std::string art);
 
 int PlayGame(int height, int width, int mode, int &timeFinished);
 
-void DisplayEndScreen(int mode, int time = -1);
+void DisplayEndScreen(int mode, int height, int width, int time = -1);
+
+#define NUM_LEADERBOARD 5
+
+void DisplayLeaderboard(int height, int width);

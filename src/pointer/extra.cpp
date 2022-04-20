@@ -62,10 +62,12 @@ void SortAscendingOrder(Stat *a, int n)
  }
 }
 
-void UpdateLeaderboard(Stat player)
+void UpdateLeaderboard(Stat player, int height, int width)
 {
+    string path = ORG_PATH + to_string(height) + "x" + to_string(width) + ".bin";
+
     ofstream ofs;
-    ofs.open("data/leaderboard.csv", ios::out | ios::app | ios::binary);
+    ofs.open(path, ios::out | ios::app | ios::binary);
 
     if(!ofs.is_open()) return;
     
@@ -74,30 +76,32 @@ void UpdateLeaderboard(Stat player)
     ofs.close();
 }
 
-Stat *ReadLeaderboard()
+Stat *ReadLeaderboard(int height, int width, int &size)
 {
+    string path = ORG_PATH + to_string(height) + "x" + to_string(width) + ".bin";
+    
     ifstream ifs;
-    ifs.open("data/leaderboard.csv", ios::in | ios::binary);
+    ifs.open(path, ios::in | ios::binary);
 
     //If the file does not exist
-    if(!ifs) return;
+    if(!ifs) return NULL;
     
     //Else
-    ifs.seekg(0, ios::beg);
+    ifs.seekg(0, ios::end);
     int sizeOfBytes = ifs.tellg();
     
     //If the contents of the file is empty
-    if(sizeOfBytes == 0) return;
+    if(sizeOfBytes == 0) return NULL;
 
     //Else
-    int size = sizeOfBytes/sizeof(Stat);
+    size = sizeOfBytes/sizeof(Stat);
     Stat *leaderboard = new Stat [size];
 
     string temp_name;
     string temp_time;
 
-
-    for(int i = 1; i < size; i++)
+    ifs.seekg(0, ios::beg);
+    for(int i = 0; i < size; i++)
     {
         ifs.read(reinterpret_cast<char*> (&leaderboard[i]), sizeof(Stat));
     }
