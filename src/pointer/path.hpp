@@ -2,7 +2,8 @@
 
 #include "global.hpp"
 #include "curses.h"
-#include "string"
+
+#include <string>
 
 bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path, int &pathLen);
 bool FindHint(Card **board, int height, int width, Pos* &path, int &pathLen);

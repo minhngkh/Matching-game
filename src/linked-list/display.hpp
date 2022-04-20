@@ -4,7 +4,6 @@
 #include "board.hpp"
 #include "path.hpp"
 #include "curses.h"
-#include "test.hpp"
 #include "extra.hpp"
 
 #include <string>

@@ -5,28 +5,6 @@ using namespace std;
 bool GenerateBoard(Card **&board, int height, int width) {
     int totalCards = height * width;
 
-    // if (totalCards > MAX_TOTAL_CARDS) {
-    //     errorMsg = "Maximum size reached";
-    //     return false;
-    // }
-    // if (totalCards < MIN_TOTAL_CARDS) {
-    //     errorMsg = "Minimum size reached";
-    //     return false;
-    // }
-    // if (totalCards % 2 == 1) {
-    //     errorMsg = "product of sides must be even";
-    //     return false;
-    // }
-    // if (height <= 0 || width <= 0) {
-    //     errorMsg = "Invalid size";
-    //     return false;
-    // }
-
-    // board = new Card *[height];
-    // for (int i = 0; i < height; i++) {
-    //     board[i] = new Card[width];
-    // }
-
     // Create board
     board = new Card*[width];
     for (int i = 0; i < height; i++) {

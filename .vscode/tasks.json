@@ -10,7 +10,7 @@
 				"-g",
 				"-o",
 				"test.exe",
-				"src/pointer/*.cpp",
+				"src/linked-list/*.cpp",
 				"-Iinclude",
 				"-Llib",
 				"-lpdcurses",

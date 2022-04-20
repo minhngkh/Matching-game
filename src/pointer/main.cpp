@@ -2,7 +2,6 @@
 #include "board.hpp"
 #include "display.hpp"
 #include "path.hpp"
-#include "test.hpp"
 
 #define MAIN_MENU_NUM 3
 std::string mainMenu[MAIN_MENU_NUM] = {"PLAY", "LEADERBOARD" , "EXIT"};

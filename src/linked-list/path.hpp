@@ -3,7 +3,8 @@
 #include "global.hpp"
 #include "curses.h"
 #include "linked-list.hpp"
-#include "string"
+
+#include <string>
 
 void EmptyPath(Path &currPath);
 bool CheckPaths(Pos p1, Pos p2, List *board, int height, int width, Path &newPath);
