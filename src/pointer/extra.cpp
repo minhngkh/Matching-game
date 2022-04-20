@@ -65,12 +65,11 @@ void SortAscendingOrder(Stat *a, int n)
 void UpdateLeaderboard(Stat player)
 {
     ofstream ofs;
-    ofs.open("data/leaderboard.csv", ios::out | ios::app);
+    ofs.open("data/leaderboard.csv", ios::out | ios::app | ios::binary);
 
     if(!ofs.is_open()) return;
     
-    ofs << player.name << "/";
-    ofs << player.time << "\n";
+    ofs.write(reinterpret_cast<char*> (&player), sizeof(Stat));
 
     ofs.close();
 }
@@ -78,31 +77,29 @@ void UpdateLeaderboard(Stat player)
 Stat *ReadLeaderboard()
 {
     ifstream ifs;
-    ifs.open("data/leaderboard.csv");
+    ifs.open("data/leaderboard.csv", ios::in | ios::binary);
 
     //If the file does not exist
-    if(!ifs.is_open()) return NULL;
+    if(!ifs) return;
+    
     //Else
     ifs.seekg(0, ios::beg);
     int sizeOfBytes = ifs.tellg();
     
-        //If the contents of the file is empty
-    if(sizeOfBytes == 0) return NULL;
+    //If the contents of the file is empty
+    if(sizeOfBytes == 0) return;
 
-        //Else
+    //Else
     int size = sizeOfBytes/sizeof(Stat);
     Stat *leaderboard = new Stat [size];
 
     string temp_name;
     string temp_time;
 
-    for(int i = 0; i < size; i++)
-    {
-        getline(ifs, temp_name, '/');
-        getline(ifs, temp_time, '\n');
 
-        leaderboard[i].name = temp_name;
-        leaderboard[i].time = stoi(temp_time);
+    for(int i = 1; i < size; i++)
+    {
+        ifs.read(reinterpret_cast<char*> (&leaderboard[i]), sizeof(Stat));
     }
 
     //Sort the leaderboard
