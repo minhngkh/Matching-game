@@ -30,4 +30,4 @@ bin/
 
 #ignore test
 test/
-data/
+data/*.bin

@@ -284,7 +284,9 @@ void DisplayEndScreen(int mode, int height, int width, int time) {
 
     const int SPACE_INPUT = 10;
     string out = "Enter your name:";
-    char name[10];
+
+    // crate an input buffer
+    char buffer[255];
     
     int startX = (COLS - out.length() - SPACE_INPUT) / 2;
     PrintPrompt(inputWin, out, 1, LINES - 2, startX);
@@ -294,7 +296,7 @@ void DisplayEndScreen(int mode, int height, int width, int time) {
     wrefresh(inputWin);
     curs_set(1);
 
-    mvwgetstr(inputWin, 0, startX + out.length() + 1, name);
+    mvwgetstr(inputWin, 0, startX + out.length() + 1, buffer);
     
     noecho();
     raw();
@@ -303,8 +305,11 @@ void DisplayEndScreen(int mode, int height, int width, int time) {
     RemoveWin(inputWin);
     RemoveWin(timeWin);
 
+    // manually handle the buffer
     Stat data;
-    strcpy(data.name, name);
+    strncpy(data.name, buffer, 10 - 1);
+    data.name[9] = '\0';
+
     data.time = time;
     UpdateLeaderboard(data, height, width);
 }

@@ -4,7 +4,6 @@
 #include <MMsystem.h>
 #include <string>
 #include <fstream>
-#include <iostream>
 #include <chrono>
 
 struct Stat{
