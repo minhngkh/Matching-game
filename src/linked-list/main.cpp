@@ -8,7 +8,7 @@
 std::string mainMenu[MAIN_MENU_NUM] = {"PLAY", "LEADERBOARD" , "EXIT"};
 
 #define PLAY_MENU_NUM 3
-std::string playMenu[PLAY_MENU_NUM] = {"NORMAL MODE", "DIFFICULT MODE", "BACK"};
+std::string playMenu[PLAY_MENU_NUM] = {"STANDARD MODE", "DIFFICULT MODE", "BACK"};
 
 #define SIZE_MENU_NUM 4
 std::string sizeMenu[SIZE_MENU_NUM] = {"2 X 3", "4 X 6", "6 X 8", "BACK"};
