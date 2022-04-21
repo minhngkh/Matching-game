@@ -63,7 +63,7 @@ int main() {
                     int height, width;
                     
                     switch(ChooseMenu(sizeMenu, SIZE_MENU_NUM)) {
-                        case 0:
+                        case 0: // 2 x 3
                             height = 2; width = 3;
                             break;
 
@@ -83,11 +83,12 @@ int main() {
                             break;
                     }
 
+                    // if back is pressed than back to the main menu
                     if (back) break;
 
                     int timeFinished;
                     switch(PlayGame(height, width, mode, timeFinished)) {
-                        case ST_FORCE_OUT:
+                        case ST_FORCE_OUT: // pressing Ctrl + C
                             isRunning = false;
                             break;
 
@@ -111,7 +112,7 @@ int main() {
                 int height, width;
                     
                 switch(ChooseMenu(sizeMenu, SIZE_MENU_NUM)) {
-                    case 0:
+                    case 0: // 2 x 3
                         height = 2; width = 3;
                         break;
 
@@ -131,6 +132,7 @@ int main() {
                         break;
                 }
 
+                // if back is pressed than back to the main menu
                 if (back) break;
 
                 DisplayLeaderboard(height, width);
@@ -143,9 +145,10 @@ int main() {
         }
     }
 
-    clear();
+    clear(); // clear screen
     refresh();
-    endwin();
+
+    endwin(); // delelete and end all curses windows
 
     return 0;
 }

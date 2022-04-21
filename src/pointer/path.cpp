@@ -767,7 +767,9 @@ bool CheckPaths(Pos p1, Pos p2, Card **board, int height, int width, Pos* &path,
         return false;
 }
 
+// Draw the corner based on the last line and current line direction
 void DrawCorner(Pos &point, int lastDr, int currDr) {
+    // Draw with cyan color
     attron(COLOR_PAIR(2));
 
     if ((lastDr == DR_UP && currDr == DR_RIGHT) || (lastDr == DR_LEFT && currDr == DR_DOWN)) {
@@ -802,9 +804,12 @@ void DrawCorner(Pos &point, int lastDr, int currDr) {
     attroff(COLOR_PAIR(2));
 }
 
+// Draw line between 2 points
 void DrawLine(Pos point1, Pos point2, int &direction) {
+    // draw with cyan color
     attron(COLOR_PAIR(2));
 
+    // Finding the direction of the line and then draw
     int startPos;
 
     if (point1.x == point2.x) {
@@ -839,12 +844,15 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
     int lastDr, currDr;
     int offsetSadCase = 0;
 
+    // lopp through the path
     for (int i = 0; i < pathLen; i++) {
+        // Calculate the screen pos that a point on the path
         int y = path[i].y;
         int x = path[i].x;
         
         if (i != 0) lastPoint = currPoint;
 
+        // Calulate offset to the card's window posistion
         if (path[i].y == -1) {
             currPoint.y = - 1 - CARD_SPACE / 2 - CARD_HEIGHT / 2;
             ++y;
@@ -865,20 +873,25 @@ void DrawPath(Card **board, int boardHeight, int boardWidth, Pos *path, int &pat
             currPoint.x = CARD_WIDTH / 2;
         }
 
+        // Adding the windows pos to get the final screen posistion
         currPoint.y += getbegy(board[y][x].win.cover);
         currPoint.x += getbegx(board[y][x].win.cover);
-    
+
+        // we need 2 point to draw, so skip the first time
         if (i == 0) continue;
 
-        // value return from checkpath by Hoang give dupliacate values in L case
+        // value return from checkpath by Hoang gives dupliacate values in L case, this is patch to it
         if (lastPoint.x == currPoint.x && lastPoint.y == currPoint.y) {
             ++offsetSadCase;
             continue;
         }
 
         lastDr = currDr;
+
+        // Draw line between 2 points
         DrawLine(lastPoint, currPoint, currDr);
 
+        // Draw the starting corner only after 1 line has been drawn
         if (i > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
         // crucial to refresh, without it, random bugs may appear
         refresh();

@@ -62,8 +62,6 @@ void DisplayCard(Card card) {
 }
 
 void DisplayBoard(List *board, int boardHeight, int boardWidth) {
-    // int boardHeight = sizeof(board) / sizeof(*board);
-    // int boardWidth = sizeof(*board) / sizeof(**board);
     int winHeight = boardHeight * CARD_HEIGHT + (boardHeight - 1) * CARD_SPACE / 2;
     int winWidth = boardWidth * CARD_WIDTH + (boardWidth - 1) * CARD_SPACE;
     int initY = (LINES - winHeight) / 2;
@@ -89,7 +87,7 @@ void DisplayBoard(List *board, int boardHeight, int boardWidth) {
 
             boardPos.x += CARD_WIDTH + CARD_SPACE;
         }
-        // Because char's height is about double the width
+        // Because char's height is about double the width so i divide the spacing by 2
         boardPos.y += CARD_HEIGHT + CARD_SPACE / 2;
     }
 }
@@ -112,6 +110,7 @@ void RefreshBoard(List *board, int boardHeight) {
 }
 
 bool ToggleCard(Card &card) {
+    // only allow highilighted and none status
     if (card.status == STATUS_SELECTED || card.status == STATUS_REMOVED) 
         return false;
 
@@ -165,6 +164,7 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pat
 
     int selectedCards = 0;
 
+    // stop function after getting a pair
     while (selectedCards < 2) {
         ch = getch();
         Pos initPos = currPos;
@@ -347,15 +347,17 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pat
             case 3: //^C
                 return ST_FORCE_OUT;
             
-            case '0':
+            case '0': // Surrender
                 return ST_SURRENDER;                
 
-            case '9':
+            case '9': // Hint
                 // clear selected state of all current cards
                 UnselectCard(GetNode(board, currPos)->data);
                 for (int i = 0; i < selectedCards; i++) {
                     UnselectCard(GetNode(board, selectedPos[i])->data);
                 }
+                
+                // check if there is any valid pair
                 if (FindHint(board, boardHeight, boardWidth, currPath)) {
                     selectedPos[0] = currPath.head->data;
                     selectedPos[1] = currPath.tail->data;
@@ -364,10 +366,12 @@ int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Pat
                 return ST_NOPAIRS;
 
             case '8': //endgame check
+                // pretty much the same as the above
                 UnselectCard(GetNode(board, currPos)->data);
                 for (int i = 0; i < selectedCards; i++) {
                     UnselectCard(GetNode(board, selectedPos[i])->data);
                 }
+
                 if (FindHint(board, boardHeight, boardWidth, currPath)) {
                     return ST_RESET;
                 }
@@ -401,6 +405,8 @@ void RemovePair(List *board, Pos *pair) {
 void SlideBoard(List *board, Pos removedPos) {
     Node *currNode = GetNode(board, removedPos);
 
+
+    // passing val and status of a card from  right to left
     while (currNode->next && currNode->next->data.status != STATUS_REMOVED) {
         currNode->data.val = currNode->next->data.val;
         currNode->data.status = currNode->next->data.status;
@@ -410,6 +416,7 @@ void SlideBoard(List *board, Pos removedPos) {
         currNode = currNode->next;
     }
 
+    // remove the last one after sliding
     currNode->data.status = STATUS_REMOVED;
     EmptyWin(currNode->data.win.cover);
 }

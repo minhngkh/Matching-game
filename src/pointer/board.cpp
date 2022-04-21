@@ -61,8 +61,6 @@ void DisplayCard(Card card) {
 }
 
 void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
-    // int boardHeight = sizeof(board) / sizeof(*board);
-    // int boardWidth = sizeof(*board) / sizeof(**board);
     int winHeight = boardHeight * CARD_HEIGHT + (boardHeight - 1) * CARD_SPACE / 2;
     int winWidth = boardWidth * CARD_WIDTH + (boardWidth - 1) * CARD_SPACE;
     int initY = (LINES - winHeight) / 2;
@@ -81,7 +79,7 @@ void DisplayBoard(Card **board, int boardHeight, int boardWidth) {
             DisplayCard(board[i][j]);
             boardPos.x += CARD_WIDTH + CARD_SPACE;
         }
-        // Because char's height is about double the width
+        // Because char's height is about double the width so i divide the spacing by 2
         boardPos.y += CARD_HEIGHT + CARD_SPACE / 2;
     }
 }
@@ -98,6 +96,7 @@ void RefreshBoard(Card **board, int boardHeight, int boardWidth) {
 }
 
 bool ToggleCard(Card &card) {
+    // only allow highilighted and none status
     if (card.status == STATUS_SELECTED || card.status == STATUS_REMOVED) 
         return false;
 
@@ -144,6 +143,7 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
     }
     int selectedCards = 0;
 
+    // stop function after getting a pair
     while (selectedCards < 2) {
         ch = getch();
         Pos initPos = currPos;
@@ -319,15 +319,17 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
             case 3: //^C
                 return ST_FORCE_OUT;
             
-            case '0':
+            case '0': // Surrender
                 return ST_SURRENDER;                
 
-            case '9':
+            case '9': // Hint
                 // clear selected state of all current cards
                 UnselectCard(board[currPos.y][currPos.x]);
                 for (int i = 0; i < selectedCards; i++) {
                     UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
                 }
+
+                // check if there is any valid pair
                 if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
                     selectedPos[0] = path[0];
                     selectedPos[1] = path[pathLen - 1];
@@ -336,14 +338,17 @@ int GetInput(Card **board, int boardHeight, int boardWidth, Pos *selectedPos, Po
                 return ST_NOPAIRS;
 
             case '8': //endgame check
+                // pretty much the same as the above
                 UnselectCard(board[currPos.y][currPos.x]);
                 for (int i = 0; i < selectedCards; i++) {
                     UnselectCard(board[selectedPos[i].y][selectedPos[i].x]);
                 }
+
                 if (FindHint(board, boardHeight, boardWidth, path, pathLen)) {
                     return ST_RESET;
                 }
                 return ST_NOPAIRS;
+
             default:
                 break;
         }
@@ -375,6 +380,7 @@ void SlideBoard(Card **board, int boardWidth, Pos removedPos) {
 
     if (x == (boardWidth) || board[y][x].status == STATUS_REMOVED) return;
 
+    // passing val and status of a card from  right to left
     while (x < boardWidth && board[y][x].status != STATUS_REMOVED) {
         board[y][x - 1].val = board[y][x].val;
         board[y][x - 1].status = board[y][x].status;
@@ -384,6 +390,7 @@ void SlideBoard(Card **board, int boardWidth, Pos removedPos) {
         ++x;
     }
 
+    // remove the last one after sliding
     board[y][x - 1].status = STATUS_REMOVED;
     EmptyWin(board[y][x - 1].win.cover);
 }

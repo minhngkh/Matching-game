@@ -805,7 +805,9 @@ void EmptyPath(Path &currPath) {
     currPath.head = currPath.tail = NULL;
 }
 
+// Draw the corner based on the last line and current line direction
 void DrawCorner(Pos &point, int lastDr, int currDr) {
+    // Draw with cyan color
     attron(COLOR_PAIR(2));
 
     if ((lastDr == DR_UP && currDr == DR_RIGHT) || (lastDr == DR_LEFT && currDr == DR_DOWN)) {
@@ -840,9 +842,12 @@ void DrawCorner(Pos &point, int lastDr, int currDr) {
     attroff(COLOR_PAIR(2));
 }
 
+// Draw line between 2 points
 void DrawLine(Pos point1, Pos point2, int &direction) {
+    // draw with cyan color
     attron(COLOR_PAIR(2));
 
+    // Finding the direction of the line and then draw
     int startPos;
 
     if (point1.x == point2.x) {
@@ -880,16 +885,17 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
     // get first point of the path
     pointNode *currPNode = currPath.head;
 
-    // so that count start from 0
     int count = 0;
-
+    
+    // acess the path
     while (currPNode) {
         if (currPNode != currPath.head) lastPoint = currPoint;
 
+        // Calculate the screen posistion of a point on the path
         int y = currPNode->data.y;
         int x = currPNode->data.x;
         
-
+        // Calulate offset to the card's window posistion
         if (currPNode->data.y == -1) {
             currPoint.y = - 1 - CARD_SPACE / 2 - CARD_HEIGHT / 2;
             ++y;
@@ -909,10 +915,12 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
         } else {
             currPoint.x = CARD_WIDTH / 2;
         }
-
+        
+        // Adding the windows posistion to get the final screen posistion
         currPoint.y += getbegy(GetNode(board, {y, x})->data.win.cover);
         currPoint.x += getbegx(GetNode(board, {y, x})->data.win.cover);
-    
+
+        // we need 2 point to draw, so skip the first time
         if (currPNode == currPath.head) {
             ++count;
             currPNode = currPNode->next;
@@ -920,7 +928,7 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
             continue;
         }
 
-        // value return from checkpath by Hoang give dupliacate values in L case
+        // value return from checkpath by Hoang gives dupliacate values in L case, this is patch to it
         if (lastPoint.x == currPoint.x && lastPoint.y == currPoint.y) {
             ++offsetSadCase;
             ++count;
@@ -930,8 +938,11 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
         }
 
         lastDr = currDr;
+
+        // Draw line between 2 points
         DrawLine(lastPoint, currPoint, currDr);
 
+        // Draw the starting corner only after 1 line has been drawn
         if (count > 1 + offsetSadCase) DrawCorner(lastPoint, lastDr, currDr);
         // crucial to refresh, without it, random bugs may appear
         refresh();
@@ -940,4 +951,3 @@ void DrawPath(List *board, int boardHeight, int boardWidth, Path currPath) {
         currPNode = currPNode->next;
     }
 }
-//Đủ 888 dòng

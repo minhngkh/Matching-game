@@ -14,6 +14,7 @@ struct Pos {
     int y, x;
 };
 
+// Different status of a card
 #define STATUS_NONE 0
 #define STATUS_HIGHLIGHTED 1
 #define STATUS_SELECTED 2

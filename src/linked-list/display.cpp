@@ -2,6 +2,7 @@
 
 using namespace std;
 
+// Handle menu highlighting when moving
 void InteractMenu(Box *menuWins, int options, int hightlight) {
     for (int i = 0; i < options; i++) {
         if (hightlight == i) {
@@ -108,7 +109,6 @@ void DisplayArt(WINDOW *&win, string art) {
     height = width = 0;
 
     // get the size of the ascii art
-    // name conflict so i have to specify std here
     while(getline(ifs, line)) {
         if (int(line.length()) > width) width = line.length();
         ++height;
@@ -135,8 +135,8 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
     // Generate board
     List *board;
     GenerateBoard(board, height, width);
-    //GenerateTest(board, height, width);
 
+    // Display background
     WINDOW *background;
     DisplayArt(background, BACKGROUND);
     DisplayBoard(board, height, width);
@@ -150,31 +150,39 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
     RemoveWin(promptWin);
 
     // Play
+    // start counting time
     Time startTime = GetCurrTime();
     
     int pairsRemoved = 0;
     int totalPairs = height * width / 2;
 
+    // end the game after removing all of pairs
     while (pairsRemoved < totalPairs) {
+        // refresh everything
         clear();
         refresh();
         touchwin(background);
         wrefresh(background);
         RefreshBoard(board, height);
-
+        
+        // Display instruction at the top
         WINDOW *instructWin;
         PrintPrompt(instructWin, "8: endgame check  9: Help  0: Surrender", 1, 1);
 
         Pos *selectedPos = new Pos[2];
         Path path;
 
+        // Getting user input
         int gameState = GetInput(board, height, width, selectedPos, path);
 
+        // returning different results based on user inputs
+        
+        // Hint
         if (gameState == ST_ASSISTED) {
             ToggleCard(GetNode(board, selectedPos[0])->data);
             ToggleCard(GetNode(board, selectedPos[1])->data);
             
-            // wait for user to recognize the pair
+            // wait for user to recognize the pair displayed
             while (true) {
                 char ch = getch();
                 if (ch == '\r' || ch == '\n' || ch == KEY_ENTER) break;
@@ -193,12 +201,14 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
 
             RemovePair(board, selectedPos);
 
+            // slide the board if in diff mode
             if (mode == MODE_DIFFICULT) SlideBoard(board, selectedPos);
 
             ++pairsRemoved;
             continue;
         }
 
+        // Reset after endgame check valid
         if (gameState == ST_RESET) {
             WINDOW *prompt;
             PrintPrompt(prompt, "Valid pair(s) existed. Press any key to continue", 1, LINES - 2);
@@ -207,6 +217,7 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
             continue;
         }
 
+        // no pair left
         if (gameState == ST_NOPAIRS) {
             ErrorSound();
 
@@ -222,6 +233,7 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
             return ST_SURRENDER;
         }
 
+        // any other state except normal will be returned like this
         if (gameState != ST_NORMAL) {
             clear();
             RemoveWin(background);
@@ -230,22 +242,27 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
         }
 
         if (CheckPaths(selectedPos[0], selectedPos[1], board, height, width, path)) {
-        //if (test()) {
+            // Valid pair
             CorrectSound();
             
+            // Display path
             DrawPath(board, height, width, path);
             refresh();
+
             // delay 150 ms
             napms(150);
+
             // remove any character pressed when the delay happens
             flushinp();
 
             RemovePair(board, selectedPos);
 
+            // Slide board if in diff mode
             if (mode == MODE_DIFFICULT) SlideBoard(board, selectedPos);
 
             ++pairsRemoved;
         } else {
+            // Invalid pair
             ErrorSound();
             
             TogglePair(board, selectedPos);
@@ -256,6 +273,7 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
     RemoveWin(background);
     refresh();
 
+    // Calc playing time
     timeFinished = ElapsedTime(GetCurrTime(), startTime);
     
     return ST_FINISHED;
@@ -264,22 +282,28 @@ int PlayGame(int height, int width, int mode, int &timeFinished) {
 void DisplayEndScreen(int mode, int height, int width, int time) {
     WINDOW *prompt;
 
+    // Display losing screen
     if (mode == ST_SURRENDER) {
         LoseSound();
+
+        // display art
         DisplayArt(prompt, LOSE_PROMPT);
         getch();
 
         return;
     } 
     
-    // win
+    // winning screen
     WinSound();
-    DisplayArt(prompt, WIN_PROMPT);
 
+    DisplayArt(prompt, WIN_PROMPT);
+    
+    // Prompt playing time
     WINDOW *timeWin;
     string timePrompt = "Finished in " + to_string(time) + " sec(s)";
     PrintPrompt(timeWin, timePrompt.c_str(), 1, LINES - 4);
 
+    // let user intput their name
     WINDOW *inputWin;
 
     const int SPACE_INPUT = 10;
@@ -290,7 +314,8 @@ void DisplayEndScreen(int mode, int height, int width, int time) {
     
     int startX = (COLS - out.length() - SPACE_INPUT) / 2;
     PrintPrompt(inputWin, out, 1, LINES - 2, startX);
-
+    
+    // turn on input mode
     echo();
     cbreak();
     wrefresh(inputWin);
@@ -298,6 +323,7 @@ void DisplayEndScreen(int mode, int height, int width, int time) {
 
     mvwgetstr(inputWin, 0, startX + out.length() + 1, buffer);
     
+    // turn off input mode
     noecho();
     raw();
     curs_set(0);
@@ -311,6 +337,8 @@ void DisplayEndScreen(int mode, int height, int width, int time) {
     data.name[9] = '\0';
 
     data.time = time;
+
+    // Update info to the leaderboard
     UpdateLeaderboard(data, height, width);
 }
 

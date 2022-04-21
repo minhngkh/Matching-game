@@ -12,6 +12,7 @@
 #define MENU_PADDING 1
 #define MENU_SPACE 0
 
+// Display menu
 int ChooseMenu(std::string *menu, int options);
 
 void PrintInMiddle(WINDOW *win, std::string str, int y);
@@ -26,13 +27,13 @@ void RemoveWin(WINDOW *win);
 
 void DisplayArt(WINDOW *&win, std::string art);
 
-#define MODE_NORMAL 0
+#define MODE_NORMAL 0 //standard mode
 #define MODE_DIFFICULT 1
 
 int PlayGame(int height, int width, int mode, int &timeFinished);
 
 void DisplayEndScreen(int mode, int height, int width, int time = -1);
 
-#define NUM_LEADERBOARD 5
+#define NUM_LEADERBOARD 5 // max number of people on the leaderboard
 
 void DisplayLeaderboard(int height, int width);

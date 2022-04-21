@@ -19,6 +19,7 @@ void DisplayBoard(List *board, int boardHeight, int boardWidth);
 
 void RefreshBoard(List *board, int boardHeight);
 
+// toggel between highlighted and normal(none)
 bool ToggleCard(Card &card);
 
 bool TogglePair(List *board, Pos *pair);
@@ -31,10 +32,12 @@ bool TogglePair(List *board, Pos *pair);
 #define ST_NOPAIRS 5
 #define ST_RESET 6
 
+// Updating board according to user inputs
 int GetInput(List *board, int boardHeight, int boardWidth, Pos *selectedPos, Path &currPath);
 
 void RemovePair(List *board, Pos *pair);
 
+// difficult mode
 void SlideBoard(List *board, Pos removedPos);
 
 void SlideBoard(List *board, Pos *removedPos);

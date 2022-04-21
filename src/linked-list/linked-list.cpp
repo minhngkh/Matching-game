@@ -88,7 +88,6 @@ void InsertAfter(List &currList, Node *currNode, Card newData) {
     if (currList.tail == currNode) currList.tail = newNode;
 }
 
-// add node to the end of the list
 void Append(List &currList , Card newData) {
     Node *newNode = CreateNode(newData);
 
@@ -113,7 +112,6 @@ void Append(Path &currPath, Pos newData) {
     currPath.tail = newPNode;
 }
 
-//empty the whole linked list of newPath
 void EmpyPath(Path &currPath) {
      pointNode *currPNode = currPath.head;
      while (currPNode) {
@@ -125,7 +123,6 @@ void EmpyPath(Path &currPath) {
     currPath.head = currPath.tail = NULL;
 }
 
-// remove the last node
 bool Pop(List &currList) {
     if (IsEmpty(currList)) return false;
 

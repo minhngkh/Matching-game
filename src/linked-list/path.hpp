@@ -7,6 +7,7 @@
 #include <string>
 
 void EmptyPath(Path &currPath);
+
 bool CheckPaths(Pos p1, Pos p2, List *board, int height, int width, Path &newPath);
 bool FindHint(List *board, int height, int width, Path &newPath);
 
